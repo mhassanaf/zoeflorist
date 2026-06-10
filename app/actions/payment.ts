@@ -6,7 +6,7 @@ import { revalidatePath } from 'next/cache'
 
 const QRISLY_API_KEY = process.env.QRISLY_API_KEY
 const QRIS_ID = process.env.QRISLY_QRIS_ID
-const BASE_URL = 'https://api-sandbox.collaborator.komerce.id/user/api/v1/qrisly'
+const BASE_URL = process.env.QRISLY_BASE_URL || 'https://api-sandbox.collaborator.komerce.id/user/api/v1/qrisly'
 
 // Helper to make HTTPS requests using native node https module
 function makeRequest(
