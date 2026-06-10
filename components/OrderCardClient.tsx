@@ -68,6 +68,7 @@ export default function OrderCardClient({ order, userReviews }: OrderCardClientP
 
   // Copy-to-clipboard state
   const [copiedText, setCopiedText] = useState(false)
+  const [isExpanded, setIsExpanded] = useState(false)
 
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -177,288 +178,333 @@ export default function OrderCardClient({ order, userReviews }: OrderCardClientP
         </div>
       </div>
 
-      {/* Card Body (Items list) */}
-      <div className="p-6 divide-y divide-brand-neutral-1/10 flex-grow">
-        {order.order_items?.map((item: any) => (
-          <div key={item.id} className="py-4 first:pt-0 last:pb-0 flex gap-4">
-            <div className="relative w-16 h-16 bg-brand-surface rounded-lg overflow-hidden flex-shrink-0">
-              <Image
-                src={item.products?.image_url || '/placeholder.png'}
-                alt={item.products?.name || 'Bunga'}
-                fill
-                className="object-cover"
-              />
-            </div>
-            <div className="flex-grow flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
-              <div>
-                <h4 className="text-sm font-semibold text-brand-primary">
-                  {item.products?.name || 'Produk Dihapus'}
-                </h4>
-                <p className="text-xs text-brand-primary/60 font-sans mt-0.5">
-                  Ukuran: {item.products?.size || '-'} | Warna: {item.products?.color || '-'}
-                </p>
-                {order.status === 'Completed' && item.products && (
-                  <div className="mt-2 text-left">
-                    <OrderReviewButton
-                      productId={item.product_id}
-                      productName={item.products.name}
-                      productImage={item.products.image_url}
-                      initialReview={userReviews.find((r: any) => r.product_id === item.product_id)}
-                    />
-                  </div>
-                )}
-              </div>
-              <div className="flex items-center justify-between w-full sm:w-auto sm:gap-10">
-                <span className="text-xs text-brand-primary/70 font-sans">
-                  {item.quantity} x Rp {Number(item.price).toLocaleString('id-ID')}
-                </span>
-                <span className="text-sm font-semibold text-brand-primary font-sans">
-                  Rp {(Number(item.price) * item.quantity).toLocaleString('id-ID')}
-                </span>
-              </div>
-            </div>
+      {!isExpanded ? (
+        /* Summary Row when Collapsed */
+        <div 
+          onClick={() => setIsExpanded(true)}
+          className="px-6 py-5 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white hover:bg-brand-surface/10 smooth-transition cursor-pointer group"
+        >
+          <div className="text-xs text-brand-primary/80 line-clamp-1 max-w-xl">
+            <span className="font-semibold text-brand-primary">Buket:</span>{' '}
+            {order.order_items?.map((item: any) => `${item.products?.name || 'Produk'} (${item.quantity}x)`).join(', ')}
           </div>
-        ))}
-      </div>
-
-      {/* Card Footer (Shipping and Total Info) */}
-      <div className="bg-brand-surface/30 border-t border-brand-neutral-1/10 px-6 py-4 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-        <div className="text-xs text-brand-primary/70 max-w-md space-y-1">
-          <div>
-            <span className="font-semibold text-brand-primary">Alamat Kirim: </span>
-            {order.shipping_name} ({order.shipping_phone}) - {order.shipping_address}
-          </div>
-          {order.shipping_courier && (
-            <div>
-              <span className="font-semibold text-brand-primary">Kurir Pengiriman: </span>
-              <span className="bg-brand-accent-soft/20 text-brand-accent-bold font-bold px-2 py-0.5 rounded text-[10px] uppercase font-sans">
-                {order.shipping_courier}
+          <div className="flex items-center gap-5 w-full sm:w-auto justify-between sm:justify-end">
+            <div className="text-xs sm:text-sm font-semibold text-brand-primary">
+              Total Bayar:{' '}
+              <span className="text-brand-accent-bold font-serif font-bold text-sm sm:text-base">
+                Rp {Number(order.total_amount).toLocaleString('id-ID')}
               </span>
             </div>
-          )}
-        </div>
-        <div className="w-full md:w-auto flex flex-col items-end gap-1.5 border-t md:border-t-0 border-brand-neutral-1/10 pt-4 md:pt-0">
-          {order.shipping_fee && order.shipping_fee > 0 ? (
-            <>
-              <div className="flex justify-between md:justify-end w-full md:w-auto gap-10 text-xs text-brand-primary/60">
-                <span>Subtotal Bouquet:</span>
-                <span>Rp {(Number(order.total_amount) - Number(order.shipping_fee)).toLocaleString('id-ID')}</span>
-              </div>
-              <div className="flex justify-between md:justify-end w-full md:w-auto gap-10 text-xs text-brand-primary/60">
-                <span>Ongkos Kirim:</span>
-                <span>Rp {Number(order.shipping_fee).toLocaleString('id-ID')}</span>
-              </div>
-            </>
-          ) : null}
-          <div className="flex justify-between md:justify-end w-full md:w-auto gap-10 items-baseline font-serif text-sm font-bold text-brand-primary">
-            <span>Total Bayar:</span>
-            <span className="text-lg text-brand-accent-bold">
-              Rp {Number(order.total_amount).toLocaleString('id-ID')}
-            </span>
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation()
+                setIsExpanded(true)
+              }}
+              className="px-4 py-1.5 bg-brand-surface border border-brand-neutral-1/30 hover:bg-brand-neutral-1/25 rounded-full text-[10px] font-bold uppercase tracking-wider text-brand-primary shadow-sm smooth-transition cursor-pointer"
+            >
+              Buka Detail &darr;
+            </button>
           </div>
         </div>
-      </div>
-
-      {/* Admin Message Banner (If Any) */}
-      {order.admin_message && (
-        <div className="mx-6 mb-6 p-4 rounded-xl border border-brand-accent-bold/25 bg-brand-accent-bold/5 flex gap-3 items-start animate-fade-in">
-          <svg className="w-5 h-5 text-brand-accent-bold flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
-          </svg>
-          <div>
-            <span className="block text-xs font-bold text-brand-accent-bold uppercase tracking-wider">Pesan Admin Zoéflorist</span>
-            <p className="text-xs text-brand-primary/85 mt-1 font-sans leading-relaxed">
-              {order.admin_message}
-            </p>
+      ) : (
+        /* Full Expanded Details */
+        <>
+          {/* Card Body (Items list) */}
+          <div className="p-6 divide-y divide-brand-neutral-1/10 flex-grow">
+            {order.order_items?.map((item: any) => (
+              <div key={item.id} className="py-4 first:pt-0 last:pb-0 flex gap-4">
+                <div className="relative w-16 h-16 bg-brand-surface rounded-lg overflow-hidden flex-shrink-0">
+                  <Image
+                    src={item.products?.image_url || '/placeholder.png'}
+                    alt={item.products?.name || 'Bunga'}
+                    fill
+                    className="object-cover"
+                  />
+                </div>
+                <div className="flex-grow flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+                  <div>
+                    <h4 className="text-sm font-semibold text-brand-primary">
+                      {item.products?.name || 'Produk Dihapus'}
+                    </h4>
+                    <p className="text-xs text-brand-primary/60 font-sans mt-0.5">
+                      Ukuran: {item.products?.size || '-'}
+                    </p>
+                    {order.status === 'Completed' && item.products && (
+                      <div className="mt-2 text-left">
+                        <OrderReviewButton
+                          productId={item.product_id}
+                          productName={item.products.name}
+                          productImage={item.products.image_url}
+                          initialReview={userReviews.find((r: any) => r.product_id === item.product_id)}
+                        />
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex items-center justify-between w-full sm:w-auto sm:gap-10">
+                    <span className="text-xs text-brand-primary/70 font-sans">
+                      {item.quantity} x Rp {Number(item.price).toLocaleString('id-ID')}
+                    </span>
+                    <span className="text-sm font-semibold text-brand-primary font-sans">
+                      Rp {(Number(item.price) * item.quantity).toLocaleString('id-ID')}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
-        </div>
-      )}
 
-      {/* Payment Instruction & Proof Upload Panel */}
-      <div className="border-t border-brand-neutral-1/10 px-6 py-6 bg-brand-surface/20 flex flex-col gap-6">
-        <h4 className="font-serif text-sm font-bold text-brand-primary uppercase tracking-wider">
-          Informasi & Pembayaran Bukti Transfer
-        </h4>
-        {!order.payment_status || order.payment_status === 'Unpaid' || order.payment_status === 'Rejected' ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start animate-fade-in">
-            {/* Left: Payment Info */}
-            <div className="bg-white p-5 rounded-2xl border border-brand-neutral-1/15 space-y-4 shadow-inner">
+          {/* Card Footer (Shipping and Total Info) */}
+          <div className="bg-brand-surface/30 border-t border-brand-neutral-1/10 px-6 py-4 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+            <div className="text-xs text-brand-primary/70 max-w-md space-y-1">
               <div>
-                <span className="text-[10px] uppercase tracking-wider text-brand-primary/55 font-bold block">Nominal Harus Dibayar:</span>
-                <span className="text-xl font-mono font-bold text-brand-accent-bold">
+                <span className="font-semibold text-brand-primary">Alamat Kirim: </span>
+                {order.shipping_name} ({order.shipping_phone}) - {order.shipping_address}
+              </div>
+              {order.shipping_courier && (
+                <div>
+                  <span className="font-semibold text-brand-primary">Kurir Pengiriman: </span>
+                  <span className="bg-brand-accent-soft/20 text-brand-accent-bold font-bold px-2 py-0.5 rounded text-[10px] uppercase font-sans">
+                    {order.shipping_courier}
+                  </span>
+                </div>
+              )}
+            </div>
+            <div className="w-full md:w-auto flex flex-col items-end gap-1.5 border-t md:border-t-0 border-brand-neutral-1/10 pt-4 md:pt-0">
+              {order.shipping_fee && order.shipping_fee > 0 ? (
+                <>
+                  <div className="flex justify-between md:justify-end w-full md:w-auto gap-10 text-xs text-brand-primary/60">
+                    <span>Subtotal Bouquet:</span>
+                    <span>Rp {(Number(order.total_amount) - Number(order.shipping_fee)).toLocaleString('id-ID')}</span>
+                  </div>
+                  <div className="flex justify-between md:justify-end w-full md:w-auto gap-10 text-xs text-brand-primary/60">
+                    <span>Ongkos Kirim:</span>
+                    <span>Rp {Number(order.shipping_fee).toLocaleString('id-ID')}</span>
+                  </div>
+                </>
+              ) : null}
+              <div className="flex justify-between md:justify-end w-full md:w-auto gap-10 items-baseline font-serif text-sm font-bold text-brand-primary">
+                <span>Total Bayar:</span>
+                <span className="text-lg text-brand-accent-bold">
                   Rp {Number(order.total_amount).toLocaleString('id-ID')}
                 </span>
-                <span className="block text-[9px] text-brand-primary/40 font-semibold mt-1">
-                  *Pastikan nominal transfer sama persis hingga digit terakhir.
-                </span>
-              </div>
-
-              <div className="border-t border-brand-neutral-1/10 pt-4">
-                <span className="text-[10px] uppercase tracking-wider text-brand-primary/55 font-bold block mb-2">Instruksi Pembayaran:</span>
-                
-                {/* Method BCA */}
-                {order.payment_method === 'Bank Transfer' && (
-                  <div className="space-y-3 font-sans">
-                    <div className="flex items-center gap-3 bg-brand-surface/40 p-3 rounded-xl border border-brand-neutral-1/10">
-                      <div className="w-12 h-6 relative bg-white border border-brand-neutral-1/25 rounded flex items-center justify-center font-bold text-blue-800 text-[10px] tracking-wide select-none">
-                        BCA
-                      </div>
-                      <div className="flex-grow">
-                        <span className="block text-xs font-semibold text-brand-primary font-mono">1672806768</span>
-                        <span className="block text-[10px] text-brand-primary/60">a/n zoeflorist</span>
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => handleCopy('1672806768')}
-                        className="text-[10px] uppercase font-bold tracking-wider text-brand-accent-bold hover:underline cursor-pointer focus:outline-none"
-                      >
-                        {copiedText ? 'Disalin!' : 'Salin Rek'}
-                      </button>
-                    </div>
-                    <p className="text-[10px] text-brand-primary/70 leading-relaxed">
-                      Silakan lakukan transfer antar bank ke rekening Bank BCA di atas, lalu unggah bukti transfer di form sebelah kanan.
-                    </p>
-                  </div>
-                )}
-
-                {/* Method E-Wallet */}
-                {order.payment_method === 'E-wallet' && (
-                  <div className="space-y-3 font-sans">
-                    <div className="flex items-center gap-3 bg-brand-surface/40 p-3 rounded-xl border border-brand-neutral-1/10">
-                      <div className="w-12 h-6 relative bg-white border border-brand-neutral-1/25 rounded flex items-center justify-center font-bold text-green-700 text-[9px] uppercase tracking-tight select-none">
-                        DANA/GOPAY
-                      </div>
-                      <div className="flex-grow">
-                        <span className="block text-xs font-semibold text-brand-primary font-mono">085817112126</span>
-                        <span className="block text-[10px] text-brand-primary/60">a/n zoeflorist</span>
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => handleCopy('085817112126')}
-                        className="text-[10px] uppercase font-bold tracking-wider text-brand-accent-bold hover:underline cursor-pointer focus:outline-none"
-                      >
-                        {copiedText ? 'Disalin!' : 'Salin No'}
-                      </button>
-                    </div>
-                    <p className="text-[10px] text-brand-primary/70 leading-relaxed">
-                      Silakan lakukan transfer saldo e-wallet Dana atau GoPay Anda ke nomor di atas, kemudian unggah struk transaksinya.
-                    </p>
-                  </div>
-                )}
-
-                {/* Method QRIS */}
-                {order.payment_method === 'QRIS' && (
-                  <div className="space-y-3 flex flex-col items-center">
-                    <div className="relative sm:w-64 sm:h-80 w-48 h-60 bg-white border border-brand-neutral-1/20 p-2 rounded-xl shadow-md">
-                      <Image
-                        src="/qris.png"
-                        alt="QRIS zoeflorist"
-                        fill
-                        className="object-contain p-1"
-                      />
-                    </div>
-                    <p className="text-[10px] text-brand-primary/70 leading-relaxed text-center font-sans">
-                      Pindai kode QRIS di atas dengan aplikasi bank atau e-wallet pilihan Anda (Dana, GoPay, OVO, ShopeePay, LinkAja).
-                    </p>
-                  </div>
-                )}
               </div>
             </div>
+          </div>
 
-            {/* Right: Upload Form */}
-            <form onSubmit={handleUploadSubmit} className="space-y-4">
-              <span className="text-[10px] uppercase tracking-wider text-brand-primary/55 font-bold block">Unggah Bukti Transfer:</span>
-              
-              {!previewUrl ? (
-                <div className="relative border border-dashed border-brand-neutral-1/80 rounded-2xl p-6 bg-white hover:bg-brand-surface smooth-transition flex flex-col items-center justify-center cursor-pointer min-h-[140px]">
-                  <input
-                    type="file"
-                    accept="image/*"
-                    required
-                    onChange={handleFileChange}
-                    className="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
-                  />
-                  <svg className="w-10 h-10 text-brand-primary/40 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                  </svg>
-                  <span className="text-xs font-semibold text-brand-primary/70 text-center">Pilih Gambar Struk/Bukti Transfer</span>
-                  <span className="text-[9px] text-brand-primary/40 text-center mt-1">Format gambar .png, .jpg (Maksimal 5MB)</span>
+          {/* Admin Message Banner (If Any) */}
+          {order.admin_message && (
+            <div className="mx-6 mb-6 p-4 rounded-xl border border-brand-accent-bold/25 bg-brand-accent-bold/5 flex gap-3 items-start animate-fade-in">
+              <svg className="w-5 h-5 text-brand-accent-bold flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+              </svg>
+              <div>
+                <span className="block text-xs font-bold text-brand-accent-bold uppercase tracking-wider">Pesan Admin Zoéflorist</span>
+                <p className="text-xs text-brand-primary/85 mt-1 font-sans leading-relaxed">
+                  {order.admin_message}
+                </p>
+              </div>
+            </div>
+          )}
+
+          {/* Payment Instruction & Proof Upload Panel */}
+          <div className="border-t border-brand-neutral-1/10 px-6 py-6 bg-brand-surface/20 flex flex-col gap-6">
+            <h4 className="font-serif text-sm font-bold text-brand-primary uppercase tracking-wider">
+              Informasi & Pembayaran Bukti Transfer
+            </h4>
+            {!order.payment_status || order.payment_status === 'Unpaid' || order.payment_status === 'Rejected' ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start animate-fade-in">
+                {/* Left: Payment Info */}
+                <div className="bg-white p-5 rounded-2xl border border-brand-neutral-1/15 space-y-4 shadow-inner">
+                  <div>
+                    <span className="text-[10px] uppercase tracking-wider text-brand-primary/55 font-bold block">Nominal Harus Dibayar:</span>
+                    <span className="text-xl font-mono font-bold text-brand-accent-bold">
+                      Rp {Number(order.total_amount).toLocaleString('id-ID')}
+                    </span>
+                    <span className="block text-[9px] text-brand-primary/40 font-semibold mt-1">
+                      *Pastikan nominal transfer sama persis hingga digit terakhir.
+                    </span>
+                  </div>
+
+                  <div className="border-t border-brand-neutral-1/10 pt-4">
+                    <span className="text-[10px] uppercase tracking-wider text-brand-primary/55 font-bold block mb-2">Instruksi Pembayaran:</span>
+                    
+                    {/* Method BCA */}
+                    {order.payment_method === 'Bank Transfer' && (
+                      <div className="space-y-3 font-sans">
+                        <div className="flex items-center gap-3 bg-brand-surface/40 p-3 rounded-xl border border-brand-neutral-1/10">
+                          <div className="w-12 h-6 relative bg-white border border-brand-neutral-1/25 rounded flex items-center justify-center font-bold text-blue-800 text-[10px] tracking-wide select-none">
+                            BCA
+                          </div>
+                          <div className="flex-grow">
+                            <span className="block text-xs font-semibold text-brand-primary font-mono">1672806768</span>
+                            <span className="block text-[10px] text-brand-primary/60">a/n zoeflorist</span>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => handleCopy('1672806768')}
+                            className="text-[10px] uppercase font-bold tracking-wider text-brand-accent-bold hover:underline cursor-pointer focus:outline-none"
+                          >
+                            {copiedText ? 'Disalin!' : 'Salin Rek'}
+                          </button>
+                        </div>
+                        <p className="text-[10px] text-brand-primary/70 leading-relaxed">
+                          Silakan lakukan transfer antar bank ke rekening Bank BCA di atas, lalu unggah bukti transfer di form sebelah kanan.
+                        </p>
+                      </div>
+                    )}
+
+                    {/* Method E-Wallet */}
+                    {order.payment_method === 'E-wallet' && (
+                      <div className="space-y-3 font-sans">
+                        <div className="flex items-center gap-3 bg-brand-surface/40 p-3 rounded-xl border border-brand-neutral-1/10">
+                          <div className="w-12 h-6 relative bg-white border border-brand-neutral-1/25 rounded flex items-center justify-center font-bold text-green-700 text-[9px] uppercase tracking-tight select-none">
+                            DANA/GOPAY
+                          </div>
+                          <div className="flex-grow">
+                            <span className="block text-xs font-semibold text-brand-primary font-mono">085817112126</span>
+                            <span className="block text-[10px] text-brand-primary/60">a/n zoeflorist</span>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => handleCopy('085817112126')}
+                            className="text-[10px] uppercase font-bold tracking-wider text-brand-accent-bold hover:underline cursor-pointer focus:outline-none"
+                          >
+                            {copiedText ? 'Disalin!' : 'Salin No'}
+                          </button>
+                        </div>
+                        <p className="text-[10px] text-brand-primary/70 leading-relaxed">
+                          Silakan lakukan transfer saldo e-wallet Dana atau GoPay Anda ke nomor di atas, kemudian unggah struk transaksinya.
+                        </p>
+                      </div>
+                    )}
+
+                    {/* Method QRIS */}
+                    {order.payment_method === 'QRIS' && (
+                      <div className="space-y-3 flex flex-col items-center">
+                        <div className="relative sm:w-64 sm:h-80 w-48 h-60 bg-white border border-brand-neutral-1/20 p-2 rounded-xl shadow-md">
+                          <Image
+                            src="/qris.png"
+                            alt="QRIS zoeflorist"
+                            fill
+                            className="object-contain p-1"
+                          />
+                        </div>
+                        <p className="text-[10px] text-brand-primary/70 leading-relaxed text-center font-sans">
+                          Pindai kode QRIS di atas dengan aplikasi bank atau e-wallet pilihan Anda (Dana, GoPay, OVO, ShopeePay, LinkAja).
+                        </p>
+                      </div>
+                    )}
+                  </div>
                 </div>
-              ) : (
-                <div className="relative border border-brand-neutral-1/10 rounded-2xl p-4 bg-white flex items-center gap-4 shadow-sm">
-                  <div className="relative w-16 h-16 bg-brand-surface rounded-lg overflow-hidden flex-shrink-0">
+
+                {/* Right: Upload Form */}
+                <form onSubmit={handleUploadSubmit} className="space-y-4">
+                  <span className="text-[10px] uppercase tracking-wider text-brand-primary/55 font-bold block">Unggah Bukti Transfer:</span>
+                  
+                  {!previewUrl ? (
+                    <div className="relative border border-dashed border-brand-neutral-1/80 rounded-2xl p-6 bg-white hover:bg-brand-surface smooth-transition flex flex-col items-center justify-center cursor-pointer min-h-[140px]">
+                      <input
+                        type="file"
+                        accept="image/*"
+                        required
+                        onChange={handleFileChange}
+                        className="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
+                      />
+                      <svg className="w-10 h-10 text-brand-primary/40 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                      </svg>
+                      <span className="text-xs font-semibold text-brand-primary/70 text-center">Pilih Gambar Struk/Bukti Transfer</span>
+                      <span className="text-[9px] text-brand-primary/40 text-center mt-1">Format gambar .png, .jpg (Maksimal 5MB)</span>
+                    </div>
+                  ) : (
+                    <div className="relative border border-brand-neutral-1/10 rounded-2xl p-4 bg-white flex items-center gap-4 shadow-sm">
+                      <div className="relative w-16 h-16 bg-brand-surface rounded-lg overflow-hidden flex-shrink-0">
+                        <Image
+                          src={previewUrl}
+                          alt="Pratinjau Bukti"
+                          fill
+                          className="object-cover"
+                        />
+                      </div>
+                      <div className="flex-grow min-w-0">
+                        <span className="block text-xs font-semibold text-brand-primary truncate">{imageFile?.name}</span>
+                        <span className="block text-[10px] text-brand-primary/45">{(imageFile!.size / 1024 / 1024).toFixed(2)} MB</span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={handleClearFile}
+                        className="p-1.5 rounded-full hover:bg-brand-surface text-brand-primary/50 hover:text-brand-accent-bold smooth-transition cursor-pointer"
+                      >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                      </button>
+                    </div>
+                  )}
+
+                  <button
+                    type="submit"
+                    disabled={isPending || !imageFile}
+                    className="w-full bg-brand-primary text-white text-xs font-bold uppercase tracking-wider py-3.5 rounded-full shadow hover:bg-brand-primary/95 disabled:opacity-50 smooth-transition cursor-pointer"
+                  >
+                    {isPending ? 'Mengirim Bukti...' : 'Kirim Bukti Pembayaran'}
+                  </button>
+                </form>
+              </div>
+            ) : order.payment_status === 'Waiting Verification' ? (
+              <div className="flex flex-col sm:flex-row gap-6 items-center bg-white p-5 rounded-2xl border border-brand-neutral-1/15 shadow-sm">
+                <div className="relative w-24 h-32 bg-brand-surface rounded-xl border border-brand-neutral-1/20 overflow-hidden shadow-inner flex-shrink-0">
+                  {order.payment_proof_url ? (
                     <Image
-                      src={previewUrl}
-                      alt="Pratinjau Bukti"
+                      src={order.payment_proof_url}
+                      alt="Bukti Transfer Pengguna"
                       fill
                       className="object-cover"
+                      unoptimized
                     />
-                  </div>
-                  <div className="flex-grow min-w-0">
-                    <span className="block text-xs font-semibold text-brand-primary truncate">{imageFile?.name}</span>
-                    <span className="block text-[10px] text-brand-primary/45">{(imageFile!.size / 1024 / 1024).toFixed(2)} MB</span>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={handleClearFile}
-                    className="p-1.5 rounded-full hover:bg-brand-surface text-brand-primary/50 hover:text-brand-accent-bold smooth-transition cursor-pointer"
-                  >
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                  </button>
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center text-[10px] text-brand-primary/40 font-sans">No Image</div>
+                  )}
                 </div>
-              )}
+                <div className="flex-grow space-y-2 text-center sm:text-left">
+                  <span className="inline-flex px-2 py-0.5 rounded bg-sky-50 border border-sky-200 text-sky-850 text-[10px] font-bold">
+                    Bukti Transfer Dikirim
+                  </span>
+                  <p className="text-xs text-brand-primary/80 leading-relaxed font-sans">
+                    Bukti transfer Anda sedang dicek secara berkala oleh tim admin kami. Status pesanan akan otomatis berpindah ke **Processing** jika nominal sudah terverifikasi lunas. Terima kasih atas kesabaran Anda.
+                  </p>
+                </div>
+              </div>
+            ) : (
+              <div className="flex flex-col sm:flex-row gap-6 items-center bg-green-50/50 p-5 rounded-2xl border border-green-200/50 shadow-sm">
+                <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0 font-sans">
+                  <svg className="w-5 h-5 text-green-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7" />
+                  </svg>
+                </div>
+                <div className="flex-grow text-center sm:text-left">
+                  <h5 className="text-xs font-bold text-green-800 font-sans">Pembayaran Terverifikasi Lunas</h5>
+                  <p className="text-xs text-brand-primary/70 mt-1 leading-relaxed font-sans">
+                    Transaksi ini telah diselesaikan. Staf kami sedang merangkai dan memproses pengiriman bouquet bunga pesanan Anda.
+                  </p>
+                </div>
+              </div>
+            )}
+          </div>
 
-              <button
-                type="submit"
-                disabled={isPending || !imageFile}
-                className="w-full bg-brand-primary text-white text-xs font-bold uppercase tracking-wider py-3.5 rounded-full shadow hover:bg-brand-primary/95 disabled:opacity-50 smooth-transition cursor-pointer"
-              >
-                {isPending ? 'Mengirim Bukti...' : 'Kirim Bukti Pembayaran'}
-              </button>
-            </form>
+          {/* Tutup Detail Button */}
+          <div className="px-6 py-4 bg-brand-surface/30 border-t border-brand-neutral-1/10 flex justify-end">
+            <button
+              type="button"
+              onClick={() => setIsExpanded(false)}
+              className="px-4 py-1.5 bg-white border border-brand-neutral-1/30 hover:bg-brand-surface rounded-full text-[10px] font-bold uppercase tracking-wider text-brand-primary shadow-sm smooth-transition cursor-pointer"
+            >
+              Tutup Detail &uarr;
+            </button>
           </div>
-        ) : order.payment_status === 'Waiting Verification' ? (
-          <div className="flex flex-col sm:flex-row gap-6 items-center bg-white p-5 rounded-2xl border border-brand-neutral-1/15 shadow-sm">
-            <div className="relative w-24 h-32 bg-brand-surface rounded-xl border border-brand-neutral-1/20 overflow-hidden shadow-inner flex-shrink-0">
-              {order.payment_proof_url ? (
-                <Image
-                  src={order.payment_proof_url}
-                  alt="Bukti Transfer Pengguna"
-                  fill
-                  className="object-cover"
-                  unoptimized
-                />
-              ) : (
-                <div className="w-full h-full flex items-center justify-center text-[10px] text-brand-primary/40 font-sans">No Image</div>
-              )}
-            </div>
-            <div className="flex-grow space-y-2 text-center sm:text-left">
-              <span className="inline-flex px-2 py-0.5 rounded bg-sky-50 border border-sky-200 text-sky-850 text-[10px] font-bold">
-                Bukti Transfer Dikirim
-              </span>
-              <p className="text-xs text-brand-primary/80 leading-relaxed font-sans">
-                Bukti transfer Anda sedang dicek secara berkala oleh tim admin kami. Status pesanan akan otomatis berpindah ke **Processing** jika nominal sudah terverifikasi lunas. Terima kasih atas kesabaran Anda.
-              </p>
-            </div>
-          </div>
-        ) : (
-          <div className="flex flex-col sm:flex-row gap-6 items-center bg-green-50/50 p-5 rounded-2xl border border-green-200/50 shadow-sm">
-            <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0 font-sans">
-              <svg className="w-5 h-5 text-green-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7" />
-              </svg>
-            </div>
-            <div className="flex-grow text-center sm:text-left">
-              <h5 className="text-xs font-bold text-green-800 font-sans">Pembayaran Terverifikasi Lunas</h5>
-              <p className="text-xs text-brand-primary/70 mt-1 leading-relaxed font-sans">
-                Transaksi ini telah diselesaikan. Staf kami sedang merangkai dan memproses pengiriman bouquet bunga pesanan Anda.
-              </p>
-            </div>
-          </div>
-        )}
-      </div>
+        </>
+      )}
     </div>
   )
 }

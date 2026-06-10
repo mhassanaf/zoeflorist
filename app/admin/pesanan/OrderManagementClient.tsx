@@ -177,9 +177,9 @@ export default function OrderManagementClient({ initialOrders }: OrderManagement
   ]
 
   return (
-    <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 animate-fade-in-up">
+    <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-5 pb-10 sm:pt-6 animate-fade-in-up">
       {/* Back Button */}
-      <div className="mb-6 flex justify-start">
+      <div className="mb-3 flex justify-start">
         <Link
           href="/admin/dashboard"
           className="inline-flex items-center gap-2 px-4 py-2 bg-white/60 hover:bg-white text-brand-primary hover:text-brand-accent-bold border border-brand-neutral-1/10 rounded-full text-[11px] font-bold uppercase tracking-wider shadow-sm hover:shadow smooth-transition cursor-pointer group"
@@ -226,10 +226,10 @@ export default function OrderManagementClient({ initialOrders }: OrderManagement
                 {/* Header info */}
                 <div className="flex justify-between items-start">
                   <div>
-                    <span className="block text-[9px] uppercase tracking-wider text-brand-primary/50 font-bold">ID Pesanan</span>
-                    <span className="text-xs font-mono font-semibold text-brand-primary">{order.id.slice(0, 8)}...</span>
+                    <span className="block text-[11px] uppercase tracking-wider text-brand-primary/50 font-bold">ID Pesanan</span>
+                    <span className="text-sm font-mono font-semibold text-brand-primary">{order.id.slice(0, 8)}...</span>
                   </div>
-                  <span className="text-xs text-brand-primary/60">
+                  <span className="text-sm text-brand-primary/60">
                     {new Date(order.created_at).toLocaleDateString('id-ID', {
                       day: 'numeric',
                       month: 'short',
@@ -240,26 +240,26 @@ export default function OrderManagementClient({ initialOrders }: OrderManagement
 
                 {/* Customer name */}
                 <div>
-                  <span className="block text-[9px] uppercase tracking-wider text-brand-primary/50 font-bold">Pelanggan</span>
-                  <div className="text-xs font-semibold text-brand-primary">{order.profiles?.name || 'Pelanggan'}</div>
-                  <div className="text-[10px] text-brand-primary/50">{order.profiles?.email}</div>
+                  <span className="block text-[11px] uppercase tracking-wider text-brand-primary/50 font-bold">Pelanggan</span>
+                  <div className="text-sm font-semibold text-brand-primary">{order.profiles?.name || 'Pelanggan'}</div>
+                  <div className="text-xs text-brand-primary/50">{order.profiles?.email}</div>
                 </div>
 
                 {/* Total & Status selectors */}
                 <div className="grid grid-cols-2 gap-3.5 pt-3 border-t border-brand-neutral-1/10">
                   <div>
-                    <span className="block text-[9px] uppercase tracking-wider text-brand-primary/50 font-bold mb-1">Total Tagihan</span>
-                    <span className="font-sans font-bold text-xs text-brand-accent-bold">
+                    <span className="block text-[11px] uppercase tracking-wider text-brand-primary/50 font-bold mb-1">Total Tagihan</span>
+                    <span className="font-sans font-bold text-sm text-brand-accent-bold">
                       Rp {Number(order.total_amount).toLocaleString('id-ID')}
                     </span>
                   </div>
                   <div>
-                    <span className="block text-[9px] uppercase tracking-wider text-brand-primary/50 font-bold mb-1">Status Bayar</span>
+                    <span className="block text-[11px] uppercase tracking-wider text-brand-primary/50 font-bold mb-1">Status Bayar</span>
                     <select
                       value={order.payment_status || 'Unpaid'}
                       disabled={isPending}
                       onChange={(e) => handlePaymentStatusChange(order.id, e.target.value as any)}
-                      className={`w-full px-2.5 py-1.5 rounded-full text-[10px] font-bold border focus:outline-none cursor-pointer smooth-transition ${
+                      className={`w-full px-2.5 py-1.5 rounded-full text-xs font-bold border focus:outline-none cursor-pointer smooth-transition ${
                         paymentStatusColors[order.payment_status || 'Unpaid'] || 'bg-zinc-100 text-zinc-800'
                       }`}
                     >
@@ -273,12 +273,12 @@ export default function OrderManagementClient({ initialOrders }: OrderManagement
 
                 <div className="grid grid-cols-2 gap-3.5 pt-2">
                   <div>
-                    <span className="block text-[9px] uppercase tracking-wider text-brand-primary/50 font-bold mb-1">Status Operasi</span>
+                    <span className="block text-[11px] uppercase tracking-wider text-brand-primary/50 font-bold mb-1">Status Operasi</span>
                     <select
                       value={order.status}
                       disabled={isPending}
                       onChange={(e) => handleStatusChange(order.id, e.target.value)}
-                      className={`w-full px-2.5 py-1.5 rounded-full text-[10px] font-bold border focus:outline-none cursor-pointer ${
+                      className={`w-full px-2.5 py-1.5 rounded-full text-xs font-bold border focus:outline-none cursor-pointer ${
                         statusColors[order.status] || 'bg-zinc-100 text-zinc-805'
                       }`}
                     >
@@ -291,7 +291,7 @@ export default function OrderManagementClient({ initialOrders }: OrderManagement
                   <div className="flex items-end justify-end">
                     <button
                       onClick={() => toggleExpandOrder(order.id)}
-                      className="px-4 py-1.5 w-full bg-brand-surface border border-brand-neutral-1/30 rounded-full text-[10px] font-bold uppercase tracking-wider text-brand-primary hover:bg-brand-neutral-1/10 smooth-transition cursor-pointer text-center"
+                      className="px-4 py-1.5 w-full bg-brand-surface border border-brand-neutral-1/30 rounded-full text-xs font-bold uppercase tracking-wider text-brand-primary hover:bg-brand-neutral-1/10 smooth-transition cursor-pointer text-center"
                     >
                       {isExpanded ? 'Tutup Detail ▲' : 'Buka Detail ▼'}
                     </button>
@@ -303,7 +303,7 @@ export default function OrderManagementClient({ initialOrders }: OrderManagement
                   <div className="pt-4 border-t border-brand-neutral-1/10 space-y-4 animate-fade-in text-left">
                     {/* Products details */}
                     <div>
-                      <h4 className="text-[10px] uppercase font-bold tracking-wider text-brand-primary/50 mb-2">Detail Bouquet</h4>
+                      <h4 className="text-xs uppercase font-bold tracking-wider text-brand-primary/50 mb-2">Detail Bouquet</h4>
                       <div className="space-y-2">
                         {order.order_items?.map((item) => (
                           <div key={item.id} className="flex gap-2.5 items-center bg-brand-surface/20 p-2 rounded-xl border border-brand-neutral-1/10">
@@ -315,13 +315,13 @@ export default function OrderManagementClient({ initialOrders }: OrderManagement
                                 className="object-cover"
                               />
                             </div>
-                            <div className="flex-grow text-[10px] min-w-0">
+                            <div className="flex-grow text-xs min-w-0">
                               <div className="font-semibold text-brand-primary truncate">{item.products?.name}</div>
-                              <div className="text-brand-primary/50 text-[9px]">
+                              <div className="text-brand-primary/50 text-[10px]">
                                 Ukuran: {item.products?.size}
                               </div>
                             </div>
-                            <div className="text-[10px] font-semibold text-brand-primary">
+                            <div className="text-xs font-semibold text-brand-primary">
                               {item.quantity}x
                             </div>
                           </div>
@@ -330,15 +330,15 @@ export default function OrderManagementClient({ initialOrders }: OrderManagement
                     </div>
 
                     {/* Address details */}
-                    <div className="bg-brand-surface/40 p-3.5 rounded-xl border border-brand-neutral-1/10 text-[11px] text-brand-primary/80 space-y-1.5">
-                      <h4 className="text-[9px] uppercase font-bold tracking-wider text-brand-primary/50 mb-1">Info Penerima</h4>
+                    <div className="bg-brand-surface/40 p-3.5 rounded-xl border border-brand-neutral-1/10 text-xs text-brand-primary/80 space-y-1.5">
+                      <h4 className="text-[10px] uppercase font-bold tracking-wider text-brand-primary/50 mb-1">Info Penerima</h4>
                       <div><span className="font-semibold">Nama:</span> {order.shipping_name}</div>
                       <div><span className="font-semibold">HP:</span> {order.shipping_phone}</div>
                       <div className="line-clamp-2"><span className="font-semibold">Alamat:</span> {order.shipping_address}</div>
                       {order.shipping_courier && (
                         <div>
                           <span className="font-semibold">Kurir:</span>{' '}
-                          <span className="bg-brand-accent-soft/20 text-brand-accent-bold font-bold px-1 rounded text-[8px] uppercase">
+                          <span className="bg-brand-accent-soft/20 text-brand-accent-bold font-bold px-1 rounded text-[9px] uppercase">
                             {order.shipping_courier}
                           </span>
                         </div>
@@ -350,7 +350,7 @@ export default function OrderManagementClient({ initialOrders }: OrderManagement
 
                     {/* Receipt Verification */}
                     <div className="bg-white p-3.5 rounded-xl border border-brand-neutral-1/10 space-y-3">
-                      <h4 className="text-[9px] uppercase font-bold tracking-wider text-brand-primary/50">Verifikasi & Pesan</h4>
+                      <h4 className="text-[10px] uppercase font-bold tracking-wider text-brand-primary/50">Verifikasi & Pesan</h4>
                       <div className="flex items-center gap-2">
                         {order.payment_proof_url ? (
                           <div 
@@ -366,9 +366,9 @@ export default function OrderManagementClient({ initialOrders }: OrderManagement
                             />
                           </div>
                         ) : (
-                          <span className="text-[10px] text-brand-primary/40 italic">Belum upload bukti</span>
+                          <span className="text-xs text-brand-primary/40 italic">Belum upload bukti</span>
                         )}
-                        <div className="flex-grow text-[9px] text-brand-primary/60">
+                        <div className="flex-grow text-xs text-brand-primary/60">
                           {order.payment_status === 'Waiting Verification' ? 'Silakan cek dan verifikasi pembayaran struk transfer.' : 'Pembayaran: ' + order.payment_status}
                         </div>
                       </div>
@@ -377,13 +377,13 @@ export default function OrderManagementClient({ initialOrders }: OrderManagement
                         <div className="flex gap-2 pt-1">
                           <button
                             onClick={() => handleVerify(order.id, true)}
-                            className="flex-1 bg-green-600 hover:bg-green-700 text-white text-[9px] font-bold uppercase tracking-wider py-1.5 rounded-full smooth-transition shadow cursor-pointer"
+                            className="flex-1 bg-green-600 hover:bg-green-700 text-white text-xs font-bold uppercase tracking-wider py-1.5 rounded-full smooth-transition shadow cursor-pointer"
                           >
                             Setuju (Lunas)
                           </button>
                           <button
                             onClick={() => setIsRejecting(prev => ({ ...prev, [order.id]: true }))}
-                            className="bg-brand-accent-bold hover:bg-brand-accent-bold/90 text-white text-[9px] font-bold uppercase tracking-wider py-1.5 px-3 rounded-full smooth-transition shadow cursor-pointer"
+                            className="bg-brand-accent-bold hover:bg-brand-accent-bold/90 text-white text-xs font-bold uppercase tracking-wider py-1.5 px-3 rounded-full smooth-transition shadow cursor-pointer"
                           >
                             Tolak
                           </button>
@@ -397,18 +397,18 @@ export default function OrderManagementClient({ initialOrders }: OrderManagement
                             placeholder="Alasan penolakan"
                             value={rejectionReasons[order.id] || ''}
                             onChange={(e) => setRejectionReasons(prev => ({ ...prev, [order.id]: e.target.value }))}
-                            className="w-full px-2.5 py-1.5 bg-brand-surface border border-brand-neutral-1/30 rounded-lg text-[10px] focus:outline-none"
+                            className="w-full px-2.5 py-1.5 bg-brand-surface border border-brand-neutral-1/30 rounded-lg text-xs focus:outline-none"
                           />
                           <div className="flex gap-1.5 justify-end">
                             <button
                               onClick={() => handleVerify(order.id, false)}
-                              className="bg-brand-accent-bold hover:bg-brand-accent-bold/90 text-white text-[8px] font-bold uppercase py-1 px-2.5 rounded-full smooth-transition cursor-pointer"
+                              className="bg-brand-accent-bold hover:bg-brand-accent-bold/90 text-white text-[10px] font-bold uppercase py-1 px-2.5 rounded-full smooth-transition cursor-pointer"
                             >
                               Kirim
                             </button>
                             <button
                               onClick={() => setIsRejecting(prev => ({ ...prev, [order.id]: false }))}
-                              className="bg-brand-surface text-brand-primary text-[8px] font-bold uppercase py-1 px-2.5 rounded-full smooth-transition border border-brand-neutral-1/30 cursor-pointer"
+                              className="bg-brand-surface text-brand-primary text-[10px] font-bold uppercase py-1 px-2.5 rounded-full smooth-transition border border-brand-neutral-1/30 cursor-pointer"
                             >
                               Batal
                             </button>
@@ -424,16 +424,16 @@ export default function OrderManagementClient({ initialOrders }: OrderManagement
                         placeholder="Kirim catatan ke pelanggan..."
                         value={adminMessages[order.id] || ''}
                         onChange={(e) => setAdminMessages(prev => ({ ...prev, [order.id]: e.target.value }))}
-                        className="w-full px-2.5 py-1.5 bg-white border border-brand-neutral-1/30 rounded-lg text-[10px] focus:outline-none"
+                        className="w-full px-2.5 py-1.5 bg-white border border-brand-neutral-1/30 rounded-lg text-xs focus:outline-none"
                       />
                       <button
                         onClick={() => handleSendMessage(order.id)}
-                        className="w-full bg-brand-primary text-white text-[9px] font-bold uppercase tracking-wider py-1.5 rounded-full smooth-transition cursor-pointer shadow hover:bg-brand-primary/95"
+                        className="w-full bg-brand-primary text-white text-xs font-bold uppercase tracking-wider py-1.5 rounded-full smooth-transition cursor-pointer shadow hover:bg-brand-primary/95"
                       >
                         Kirim Pesan
                       </button>
                       {order.admin_message && (
-                        <div className="bg-white p-2 rounded border border-brand-neutral-1/10 text-[9px] text-brand-primary/60">
+                        <div className="bg-white p-2 rounded border border-brand-neutral-1/10 text-xs text-brand-primary/60">
                           Catatan: "{order.admin_message}"
                         </div>
                       )}
@@ -538,9 +538,9 @@ export default function OrderManagementClient({ initialOrders }: OrderManagement
                       {isExpanded && (
                         <tr className="bg-brand-surface/10">
                           <td colSpan={7} className="py-6 px-12 border-t border-b border-brand-neutral-1/10">
-                            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 font-sans">
-                              {/* Left: Products items */}
-                              <div>
+                            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 font-sans">
+                              {/* Left: Products items (col-span-5) */}
+                              <div className="lg:col-span-5">
                                 <h4 className="font-serif text-sm font-bold text-brand-primary mb-3 uppercase tracking-wider">Detail Bouquet</h4>
                                 <div className="space-y-3">
                                   {order.order_items?.map((item) => (
@@ -553,13 +553,13 @@ export default function OrderManagementClient({ initialOrders }: OrderManagement
                                           className="object-cover"
                                         />
                                       </div>
-                                      <div className="flex-grow text-xs">
-                                        <div className="font-semibold text-brand-primary">{item.products?.name}</div>
+                                      <div className="flex-grow text-xs min-w-0">
+                                        <div className="font-semibold text-brand-primary truncate">{item.products?.name}</div>
                                         <div className="text-brand-primary/60">
-                                          Ukuran: {item.products?.size} | Warna: {item.products?.color}
+                                          Ukuran: {item.products?.size || '-'}
                                         </div>
                                       </div>
-                                      <div className="text-xs text-right text-brand-primary font-semibold font-sans">
+                                      <div className="text-xs text-right text-brand-primary font-semibold font-sans whitespace-nowrap flex-shrink-0">
                                         {item.quantity} x Rp {item.price.toLocaleString('id-ID')}
                                       </div>
                                     </div>
@@ -567,8 +567,8 @@ export default function OrderManagementClient({ initialOrders }: OrderManagement
                                 </div>
                               </div>
 
-                              {/* Middle: Shipping details */}
-                              <div>
+                              {/* Middle: Shipping details (col-span-3) */}
+                              <div className="lg:col-span-3">
                                 <h4 className="font-serif text-sm font-bold text-brand-primary mb-3 uppercase tracking-wider">Info Alamat Pengiriman</h4>
                                 <div className="text-xs text-brand-primary/80 space-y-2 leading-relaxed">
                                   <div>
@@ -602,8 +602,8 @@ export default function OrderManagementClient({ initialOrders }: OrderManagement
                                 </div>
                               </div>
 
-                              {/* Right: Payment verification & Admin Message */}
-                              <div className="space-y-4">
+                              {/* Right: Payment verification & Admin Message (col-span-4) */}
+                              <div className="lg:col-span-4 space-y-4">
                                 <h4 className="font-serif text-sm font-bold text-brand-primary mb-3 uppercase tracking-wider">Verifikasi Pembayaran</h4>
                                 <div className="text-xs text-brand-primary/80 space-y-2.5 leading-relaxed bg-white p-4 rounded-xl border border-brand-neutral-1/15 flex flex-col">
                                   <div>
