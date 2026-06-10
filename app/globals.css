@@ -75,4 +75,23 @@ body {
   transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
+/* Scanline Animation for QRIS */
+@keyframes scan {
+  0% { top: 0%; opacity: 0.2; }
+  50% { opacity: 1; }
+  100% { top: 100%; opacity: 0.2; }
+}
 
+.qris-scanner-line {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(to right, transparent, #9E3B3B, transparent);
+  box-shadow: 0 0 10px 2px #9E3B3B;
+  animation: scan 2.5s ease-in-out infinite;
+}
+
+.glow-glow {
+  box-shadow: 0 0 25px rgba(158, 59, 59, 0.12);
+}
