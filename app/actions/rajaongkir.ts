@@ -58,19 +58,19 @@ async function getKomerceOriginCityId(): Promise<string | null> {
       return ORIGIN_CITY_ID || null
     }
 
-    console.log(`Resolving Komerce ID for Kabupaten Bandung in Jawa Barat (Province ID ${jabar.id})...`)
-    // 2. Fetch cities in Jawa Barat to find Kabupaten Bandung
+    console.log(`Resolving Komerce ID for Bandung in Jawa Barat (Province ID ${jabar.id})...`)
+    // 2. Fetch cities in Jawa Barat to find Bandung
     const cityData = await makeRequest(`${BASE_URL}/destination/city/${jabar.id}`, 'GET', {
       key: RAJAONGKIR_API_KEY,
     })
     const cities = cityData?.data || []
-    const kabBandung = cities.find((c: any) => 
-      c.name && c.name.toLowerCase().includes('bandung') && 
-      c.type && c.type.toLowerCase().includes('kabupaten')
+    // Komerce cities list has name "BANDUNG" for Bandung. Match exactly to avoid "BANDUNG BARAT".
+    const bandung = cities.find((c: any) => 
+      c.name && c.name.toLowerCase() === 'bandung'
     )
-    if (kabBandung) {
-      memoizedOriginCityId = String(kabBandung.id)
-      console.log('Dynamically resolved Komerce Origin City ID for Kabupaten Bandung:', memoizedOriginCityId)
+    if (bandung) {
+      memoizedOriginCityId = String(bandung.id)
+      console.log('Dynamically resolved Komerce Origin City ID for Bandung:', memoizedOriginCityId)
       return memoizedOriginCityId
     }
   } catch (err) {
@@ -216,7 +216,18 @@ export async function calculateShippingCost(
       'content-type': 'application/x-www-form-urlencoded',
     }, bodyData)
 
-    return data?.data?.results[0]?.costs || []
+    const results = data?.data || []
+    return results.map((item: any) => ({
+      service: item.service,
+      description: item.description || item.name || '',
+      cost: [
+        {
+          value: Number(item.cost),
+          etd: item.etd || '',
+          note: ''
+        }
+      ]
+    }))
   } catch (error) {
     console.error('Error calculating RajaOngkir shipping cost:', error)
     return []
