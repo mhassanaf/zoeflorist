@@ -173,7 +173,7 @@ export default function ProductCrudClient({ initialProducts }: ProductCrudClient
   ]
 
   return (
-    <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-5 pb-10 sm:pt-6 animate-fade-in-up">
+    <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-3 pb-10 sm:pt-4 animate-fade-in-up">
       {/* Back Button */}
       <div className="mb-3 flex justify-start">
         <Link
@@ -188,7 +188,7 @@ export default function ProductCrudClient({ initialProducts }: ProductCrudClient
       </div>
 
       {/* Admin Title & Nav */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center border-b border-brand-neutral-1/20 pb-6 mb-10 gap-4">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center border-b border-brand-neutral-1/20 pb-6 mb-6 gap-4">
         <div>
           <h1 className="font-serif text-3xl font-bold text-brand-primary">Manajemen Produk</h1>
           <p className="text-sm text-brand-primary/60 mt-1 font-sans">Kelola persediaan bouquet bunga segar</p>
@@ -213,7 +213,7 @@ export default function ProductCrudClient({ initialProducts }: ProductCrudClient
       </div>
 
       {/* Toolbar */}
-      <div className="flex justify-end mb-6">
+      <div className="flex justify-end mb-4">
         <button
           onClick={handleOpenAdd}
           className="bg-brand-primary text-white text-xs font-semibold uppercase tracking-wider px-6 py-3 rounded-full hover:bg-brand-primary/95 shadow smooth-transition cursor-pointer"

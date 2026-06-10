@@ -56,7 +56,7 @@ export async function getFavorites() {
 
   const { data, error } = await supabase
     .from('favorites')
-    .select('product_id, products(*)')
+    .select('product_id, products(*, reviews(rating))')
     .eq('user_id', user.id)
 
   if (error) {
@@ -64,8 +64,27 @@ export async function getFavorites() {
     return []
   }
 
-  // Map elements to actual products list
-  return data ? data.map((fav: any) => fav.products) : []
+  // Map elements to actual products list with mapped ratings
+  return data
+    ? data
+        .map((fav: any) => {
+          const product = fav.products
+          if (!product) return null
+          
+          const ratings = product.reviews?.map((r: any) => r.rating) || []
+          const total = ratings.reduce((sum: number, r: number) => sum + r, 0)
+          const avgRating = ratings.length > 0 ? Number((total / ratings.length).toFixed(1)) : 0
+          const reviewCount = ratings.length
+
+          const { reviews, ...rest } = product
+          return {
+            ...rest,
+            avg_rating: avgRating,
+            review_count: reviewCount,
+          }
+        })
+        .filter(Boolean)
+    : []
 }
 
 export async function getFavoritesMap() {

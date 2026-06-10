@@ -55,9 +55,9 @@ export default async function AdminDashboardPage() {
   ]
 
   return (
-    <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 animate-fade-in-up">
+    <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-3 pb-10 sm:pt-4 animate-fade-in-up">
       {/* Back to Shop Link */}
-      <div className="mb-6 flex justify-start">
+      <div className="mb-4 flex justify-start">
         <Link
           href="/"
           className="inline-flex items-center gap-2 px-4 py-2 bg-white/60 hover:bg-white text-brand-primary hover:text-brand-accent-bold border border-brand-neutral-1/10 rounded-full text-[11px] font-bold uppercase tracking-wider shadow-sm hover:shadow smooth-transition cursor-pointer group"
@@ -70,7 +70,7 @@ export default async function AdminDashboardPage() {
       </div>
 
       {/* Admin Title & Nav */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center border-b border-brand-neutral-1/20 pb-6 mb-10 gap-4">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center border-b border-brand-neutral-1/20 pb-6 mb-6 gap-4">
         <div>
           <h1 className="font-serif text-3xl font-bold text-brand-primary">Dashboard Administrator</h1>
           <p className="text-sm text-brand-primary/60 mt-1 font-sans">Panel kelola operasional Zoéflorist</p>
@@ -95,7 +95,7 @@ export default async function AdminDashboardPage() {
       </div>
 
       {/* Analytics Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
         <div className="bg-white p-6 rounded-2xl border border-brand-neutral-1/10 shadow-sm flex flex-col justify-between">
           <span className="text-xs uppercase tracking-wider text-brand-primary/60 font-semibold font-sans">Total Penjualan</span>
           <span className="font-serif text-2xl font-bold text-brand-accent-bold mt-2">
@@ -130,7 +130,7 @@ export default async function AdminDashboardPage() {
       </div>
 
       {/* Recent Activity Table */}
-      <div className="w-full bg-white rounded-2xl border border-brand-neutral-1/10 shadow-sm overflow-hidden mb-12">
+      <div className="w-full bg-white rounded-2xl border border-brand-neutral-1/10 shadow-sm overflow-hidden mb-6">
         <div className="px-6 py-5 border-b border-brand-neutral-1/10 flex justify-between items-center">
           <h2 className="font-serif text-xl font-bold text-brand-primary">Pesanan Terbaru</h2>
           <Link

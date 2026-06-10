@@ -246,14 +246,14 @@ export default function ProductCard({ product, initialIsFavorite, isLoggedIn }: 
             <svg className="w-2.5 h-2.5 xs:w-3 xs:h-3 sm:w-3.5 sm:h-3.5 text-amber-500 fill-current" viewBox="0 0 20 20">
               <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
             </svg>
-            {product.review_count && product.review_count > 0 ? (
-              <div className="flex items-baseline gap-0.5 sm:gap-1">
-                <span className="text-[9px] xs:text-[10px] sm:text-xs font-bold text-brand-primary">{product.avg_rating}</span>
-                <span className="text-[7px] xs:text-[8px] sm:text-[10px] text-brand-primary/50 font-sans">({product.review_count})</span>
-              </div>
-            ) : (
-              <span className="text-[7px] xs:text-[8px] sm:text-[10px] text-brand-primary/45 font-sans">Belum diulas</span>
-            )}
+            <div className="flex items-baseline gap-0.5 sm:gap-1">
+              <span className="text-[9px] xs:text-[10px] sm:text-xs font-bold text-brand-primary">
+                {Number(product.avg_rating ?? 0).toFixed(1)}
+              </span>
+              <span className="text-[7px] xs:text-[8px] sm:text-[10px] text-brand-primary/50 font-sans">
+                ({product.review_count ?? 0})
+              </span>
+            </div>
           </div>
 
           <p className="text-[9px] xs:text-[10px] sm:text-xs text-brand-primary/60 font-sans line-clamp-1 sm:line-clamp-2 mb-2 sm:mb-4 leading-relaxed">
@@ -333,14 +333,14 @@ export default function ProductCard({ product, initialIsFavorite, isLoggedIn }: 
                       <svg className="w-3.5 h-3.5 text-amber-500 fill-current" viewBox="0 0 20 20">
                         <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
                       </svg>
-                      {product.review_count && product.review_count > 0 ? (
-                        <div className="flex items-baseline gap-1">
-                          <span className="text-xs font-bold text-brand-primary">{product.avg_rating}</span>
-                          <span className="text-[10px] text-brand-primary/50 font-sans">({product.review_count} ulasan)</span>
-                        </div>
-                      ) : (
-                        <span className="text-[10px] text-brand-primary/45 font-sans">Belum ada ulasan</span>
-                      )}
+                      <div className="flex items-baseline gap-1">
+                        <span className="text-xs font-bold text-brand-primary">
+                          {Number(product.avg_rating ?? 0).toFixed(1)}
+                        </span>
+                        <span className="text-[10px] text-brand-primary/50 font-sans">
+                          ({product.review_count ?? 0} ulasan)
+                        </span>
+                      </div>
                     </div>
 
                     {/* Price & Stock */}

@@ -177,7 +177,7 @@ export default function OrderManagementClient({ initialOrders }: OrderManagement
   ]
 
   return (
-    <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-5 pb-10 sm:pt-6 animate-fade-in-up">
+    <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-3 pb-10 sm:pt-4 animate-fade-in-up">
       {/* Back Button */}
       <div className="mb-3 flex justify-start">
         <Link
@@ -192,7 +192,7 @@ export default function OrderManagementClient({ initialOrders }: OrderManagement
       </div>
 
       {/* Admin Title & Nav */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center border-b border-brand-neutral-1/20 pb-6 mb-10 gap-4">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center border-b border-brand-neutral-1/20 pb-6 mb-6 gap-4">
         <div>
           <h1 className="font-serif text-3xl font-bold text-brand-primary">Manajemen Pesanan</h1>
           <p className="text-sm text-brand-primary/60 mt-1 font-sans">Proses transaksi dan kirim pesanan pelanggan</p>
@@ -217,7 +217,7 @@ export default function OrderManagementClient({ initialOrders }: OrderManagement
       </div>
 
       {/* Mobile Card List View (Visible only on mobile/tablet) */}
-      <div className="lg:hidden space-y-6 mb-6">
+      <div className="lg:hidden space-y-6 mb-4">
         {initialOrders.length > 0 ? (
           initialOrders.map((order) => {
             const isExpanded = expandedOrderId === order.id
@@ -288,19 +288,27 @@ export default function OrderManagementClient({ initialOrders }: OrderManagement
                       <option value="Cancelled">Cancelled</option>
                     </select>
                   </div>
-                  <div className="flex items-end justify-end">
+                  <div className="flex items-end justify-end w-full">
                     <button
                       onClick={() => toggleExpandOrder(order.id)}
-                      className="px-4 py-1.5 w-full bg-brand-surface border border-brand-neutral-1/30 rounded-full text-xs font-bold uppercase tracking-wider text-brand-primary hover:bg-brand-neutral-1/10 smooth-transition cursor-pointer text-center"
+                      className="px-4 py-2 w-full bg-brand-surface hover:bg-brand-neutral-1/10 border border-brand-neutral-1/30 rounded-full text-xs font-bold uppercase tracking-wider text-brand-primary flex items-center justify-center gap-1.5 smooth-transition cursor-pointer"
                     >
-                      {isExpanded ? 'Tutup Detail ▲' : 'Buka Detail ▼'}
+                      <span>{isExpanded ? 'Tutup Detail' : 'Buka Detail'}</span>
+                      <svg
+                        className={`w-3.5 h-3.5 transform transition-transform duration-300 ${isExpanded ? 'rotate-180 text-brand-accent-bold' : 'text-brand-primary/50'}`}
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M19 9l-7 7-7-7" />
+                      </svg>
                     </button>
                   </div>
                 </div>
 
                 {/* Expanded Details Mobile */}
                 {isExpanded && (
-                  <div className="pt-4 border-t border-brand-neutral-1/10 space-y-4 animate-fade-in text-left">
+                  <div className="pt-4 border-t border-brand-neutral-1/10 space-y-4 animate-slide-down text-left">
                     {/* Products details */}
                     <div>
                       <h4 className="text-xs uppercase font-bold tracking-wider text-brand-primary/50 mb-2">Detail Bouquet</h4>
@@ -478,8 +486,15 @@ export default function OrderManagementClient({ initialOrders }: OrderManagement
                           isExpanded ? 'bg-brand-surface/30' : ''
                         }`}
                       >
-                        <td className="py-4 px-6 text-brand-primary/40 font-bold">
-                          {isExpanded ? '▲' : '▼'}
+                        <td className="py-4 px-6 text-brand-primary/40">
+                          <svg
+                            className={`w-4 h-4 transform transition-transform duration-300 ${isExpanded ? 'rotate-180 text-brand-accent-bold' : 'text-brand-primary/40'}`}
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M19 9l-7 7-7-7" />
+                          </svg>
                         </td>
                         <td className="py-4 px-6 font-mono text-xs font-semibold text-brand-primary">
                           {order.id.slice(0, 8)}...
@@ -538,9 +553,9 @@ export default function OrderManagementClient({ initialOrders }: OrderManagement
                       {isExpanded && (
                         <tr className="bg-brand-surface/10">
                           <td colSpan={7} className="py-6 px-12 border-t border-b border-brand-neutral-1/10">
-                            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 font-sans">
+                            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 font-sans animate-slide-down">
                               {/* Left: Products items (col-span-5) */}
-                              <div className="lg:col-span-5">
+                              <div className="lg:col-span-5 bg-white p-5 rounded-2xl border border-brand-neutral-1/15 shadow-sm hover:shadow smooth-transition">
                                 <h4 className="font-serif text-sm font-bold text-brand-primary mb-3 uppercase tracking-wider">Detail Bouquet</h4>
                                 <div className="space-y-3">
                                   {order.order_items?.map((item) => (
@@ -568,7 +583,7 @@ export default function OrderManagementClient({ initialOrders }: OrderManagement
                               </div>
 
                               {/* Middle: Shipping details (col-span-3) */}
-                              <div className="lg:col-span-3">
+                              <div className="lg:col-span-3 bg-white p-5 rounded-2xl border border-brand-neutral-1/15 shadow-sm hover:shadow smooth-transition">
                                 <h4 className="font-serif text-sm font-bold text-brand-primary mb-3 uppercase tracking-wider">Info Alamat Pengiriman</h4>
                                 <div className="text-xs text-brand-primary/80 space-y-2 leading-relaxed">
                                   <div>
@@ -603,9 +618,9 @@ export default function OrderManagementClient({ initialOrders }: OrderManagement
                               </div>
 
                               {/* Right: Payment verification & Admin Message (col-span-4) */}
-                              <div className="lg:col-span-4 space-y-4">
-                                <h4 className="font-serif text-sm font-bold text-brand-primary mb-3 uppercase tracking-wider">Verifikasi Pembayaran</h4>
-                                <div className="text-xs text-brand-primary/80 space-y-2.5 leading-relaxed bg-white p-4 rounded-xl border border-brand-neutral-1/15 flex flex-col">
+                              <div className="lg:col-span-4 bg-white p-5 rounded-2xl border border-brand-neutral-1/15 shadow-sm hover:shadow smooth-transition space-y-4">
+                                <h4 className="font-serif text-sm font-bold text-brand-primary mb-1 uppercase tracking-wider">Verifikasi Pembayaran</h4>
+                                <div className="text-xs text-brand-primary/80 space-y-2.5 leading-relaxed bg-brand-surface/40 p-4 rounded-xl border border-brand-neutral-1/10 flex flex-col">
                                   <div>
                                     <span className="font-semibold text-brand-primary block mb-1">Status Pembayaran:</span>
                                     <select
@@ -650,7 +665,7 @@ export default function OrderManagementClient({ initialOrders }: OrderManagement
 
                                 {/* Verification Buttons (Waiting Verification) */}
                                 {order.payment_status === 'Waiting Verification' && (
-                                  <div className="bg-brand-surface p-4 rounded-xl border border-brand-neutral-1/15 space-y-3">
+                                  <div className="bg-brand-surface/40 p-4 rounded-xl border border-brand-neutral-1/10 space-y-3">
                                     <span className="text-[10px] uppercase font-bold tracking-wider text-brand-primary block">Aksi Verifikasi</span>
                                     
                                     {!isRejecting[order.id] ? (
@@ -698,7 +713,7 @@ export default function OrderManagementClient({ initialOrders }: OrderManagement
                                 )}
 
                                 {/* Admin Message Form */}
-                                <div className="bg-brand-surface p-4 rounded-xl border border-brand-neutral-1/15 space-y-2.5">
+                                <div className="bg-brand-surface/40 p-4 rounded-xl border border-brand-neutral-1/10 space-y-2.5">
                                   <label className="text-[10px] uppercase font-bold tracking-wider text-brand-primary block">Kirim Pesan ke Pelanggan</label>
                                   <textarea
                                     rows={2}
