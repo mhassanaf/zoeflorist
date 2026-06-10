@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>zoéflorist | Handcrafted Artisanal Bouquets</title>
+<!-- Google Fonts: Playfair Display for Serifs, Inter for Sans-serif -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&amp;family=Playfair+Display:ital,wght@0,600;0,700;1,400&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "background": "#fff8f6",
+                    "secondary-fixed": "#ffdad8",
+                    "surface-tint": "#7b5549",
+                    "secondary-container": "#fe8481",
+                    "primary": "#7b5549",
+                    "on-tertiary-fixed": "#281809",
+                    "on-secondary-fixed-variant": "#812628",
+                    "on-tertiary-fixed-variant": "#584231",
+                    "tertiary-container": "#eacab3",
+                    "on-background": "#221a16",
+                    "primary-fixed-dim": "#edbcac",
+                    "inverse-on-surface": "#ffede6",
+                    "on-secondary-fixed": "#410006",
+                    "outline-variant": "#d5c3bd",
+                    "tertiary-fixed": "#fddcc4",
+                    "on-secondary-container": "#751c1f",
+                    "error": "#ba1a1a",
+                    "surface": "#fff8f6",
+                    "surface-container-high": "#f6e5de",
+                    "on-error-container": "#93000a",
+                    "surface-container-lowest": "#ffffff",
+                    "tertiary-fixed-dim": "#e0c1aa",
+                    "on-primary-fixed-variant": "#613e33",
+                    "inverse-surface": "#382e2a",
+                    "on-tertiary": "#ffffff",
+                    "primary-container": "#f7c5b5",
+                    "on-primary-container": "#755043",
+                    "surface-bright": "#fff8f6",
+                    "surface-container-low": "#fff1eb",
+                    "on-surface-variant": "#504440",
+                    "error-container": "#ffdad6",
+                    "secondary": "#a13d3d",
+                    "secondary-fixed-dim": "#ffb3af",
+                    "primary-fixed": "#ffdbcf",
+                    "surface-dim": "#e8d7d0",
+                    "on-surface": "#221a16",
+                    "surface-container": "#fceae3",
+                    "on-secondary": "#ffffff",
+                    "inverse-primary": "#edbcac",
+                    "surface-container-highest": "#f0dfd8",
+                    "on-primary-fixed": "#2f140b",
+                    "on-primary": "#ffffff",
+                    "outline": "#83746f",
+                    "tertiary": "#715a47",
+                    "on-tertiary-container": "#6b5442",
+                    "surface-variant": "#f0dfd8",
+                    "on-error": "#ffffff"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "margin-mobile": "16px",
+                    "section-gap": "120px",
+                    "margin-desktop": "64px",
+                    "gutter": "24px",
+                    "base": "8px",
+                    "container-max": "1280px"
+            },
+            "fontFamily": {
+                    "body-lg": ["Inter"],
+                    "label-md": ["Inter"],
+                    "headline-lg-mobile": ["Playfair Display"],
+                    "body-md": ["Inter"],
+                    "headline-md": ["Playfair Display"],
+                    "caption": ["Inter"],
+                    "display-lg": ["Playfair Display"],
+                    "headline-lg": ["Playfair Display"]
+            },
+            "fontSize": {
+                    "body-lg": ["18px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                    "label-md": ["14px", {"lineHeight": "1.4", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                    "headline-lg-mobile": ["32px", {"lineHeight": "1.2", "fontWeight": "600"}],
+                    "body-md": ["16px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                    "headline-md": ["28px", {"lineHeight": "1.3", "fontWeight": "600"}],
+                    "caption": ["12px", {"lineHeight": "1.4", "fontWeight": "400"}],
+                    "display-lg": ["56px", {"lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "headline-lg": ["40px", {"lineHeight": "1.2", "fontWeight": "600"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .hero-gradient {
+            background: linear-gradient(to right, rgba(255, 248, 246, 0.95), rgba(255, 248, 246, 0.4));
+        }
+        .reveal-on-scroll {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .reveal-on-scroll.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        #gravity-shader-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: -1;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body class="bg-background/80 text-on-background font-body-md selection:bg-primary-container selection:text-on-primary-container relative">
+<!-- Full-screen Background Shader -->
+<canvas id="gravity-shader-canvas"></canvas>
+<!-- TopNavBar -->
+<nav class="sticky top-0 z-50 bg-background/80 backdrop-blur-md transition-all duration-300 border-b border-outline-variant/10">
+<div class="flex justify-between items-center px-6 md:px-margin-desktop py-4 max-w-container-max mx-auto">
+<div class="flex items-center gap-8">
+<a class="font-headline-md text-headline-md font-bold text-primary" href="#">
+<img alt="zoéflorist logo" class="h-10" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDJ0vF7ozckSRAi12g7WOcWF1NQC4GuC4G-G8Zef1QcMlnE-BJrM_wG25PqdfDPUUoRJS514QQzsdxtrKXZh6Qu5TDyBFzbPNfQG7AFgVtKtVcMtqDcOxLosOMCufhD-B6VS1hSiDDpQbM08tad9JnuKyhAEoZ5l1qUNebnqQb2BIjk7jhJ0eD0uj7-aIPS02w4_uxtPqpiPPqdp5poR89J7kVpKQlVDZdVGKWFR9AA3tC_-c19yzrcBToBweWkHPtfNcuFKsnAYIk8"/>
+</a>
+<div class="hidden md:flex items-center gap-6">
+<a class="font-body-md text-body-md text-secondary font-bold border-b-2 border-secondary pb-1" href="#">Home</a>
+<a class="font-body-md text-body-md text-on-surface-variant hover:text-primary transition-colors" href="#">Shop</a>
+<a class="font-body-md text-body-md text-on-surface-variant hover:text-primary transition-colors" href="#">About</a>
+<a class="font-body-md text-body-md text-on-surface-variant hover:text-primary transition-colors" href="#">Admin</a>
+<a class="font-body-md text-body-md text-on-surface-variant hover:text-primary transition-colors" href="#">Riwayat</a><a class="font-body-md text-body-md text-on-surface-variant hover:text-primary transition-colors" href="#">Favorit</a></div>
+</div>
+<div class="flex items-center gap-4">
+<div class="hidden lg:flex relative items-center">
+<input class="bg-surface-container-low border-none rounded-full py-2 pl-4 pr-10 focus:ring-1 focus:ring-primary w-64 text-sm transition-all" placeholder="Search bouquets..." type="text"/>
+<span class="material-symbols-outlined absolute right-3 text-on-surface-variant cursor-pointer">search</span>
+</div>
+<button class="p-2 text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined">shopping_cart</span>
+</button>
+<button class="p-2 text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined">account_circle</span>
+</button>
+</div>
+</div>
+</nav>
+<!-- Hero Section -->
+<header class="relative w-full h-[80vh] min-h-[600px] flex items-center overflow-hidden">
+<div class="absolute inset-0 z-0">
+<img class="w-full h-full object-cover object-center" data-alt="A luxurious editorial photograph of a large, artisanal bouquet featuring peonies, ranunculus, and eucalyptus. The flowers are arranged in a soft, organic style with a warm, sun-drenched backlight. The palette consists of creamy whites, dusty pinks, and sage greens against a minimalist, high-end studio background with soft ambient shadows and elegant negative space." src="https://lh3.googleusercontent.com/aida-public/AB6AXuC9BQB-lbOLL8xfGCnIdTkLWmUYcmMOqLF25AwEroFnX1NlW5HapZq15FcV4abdRlnE_Iv6vuJz9qQsI-3yRl8sPe8PxNf6xmJEYMqEd_v6wiPYqDn6I5TLCiFSSCtyMfA56yEqysSiIh_3DL2wYMFid_5EtM2qrFaGqleAffBiyJzwnvXtmcIj6CY6QPi7z_pqybExWNK6nRzphymJVk-ypPuO6tsvVxfZrYweqi6s6Wsk30_HFFvVs6fW0Qn-6wdA60v16WNbu5pN"/>
+<div class="hero-gradient absolute inset-0"></div>
+</div>
+<div class="relative z-10 px-6 md:px-margin-desktop max-w-container-max mx-auto w-full">
+<div class="max-w-xl space-y-6">
+<span class="font-label-md text-label-md text-primary tracking-widest uppercase">Est. 2024 • Artisanal Floristry</span>
+<h1 class="font-display-lg text-display-lg text-primary leading-tight">
+                    Poetry written in <span class="italic font-normal">petals.</span>
+</h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant leading-relaxed">
+                    Elevate every moment with handcrafted floral arrangements that celebrate life's most delicate emotions. Delivered fresh from our garden to your sanctuary.
+                </p>
+<div class="flex flex-wrap gap-4 pt-4">
+<button class="bg-primary-container text-on-primary-container px-8 py-4 rounded-full font-label-md text-label-md hover:scale-105 transition-transform active:scale-95">
+                        Shop the Collection
+                    </button>
+<button class="border border-outline-variant text-primary px-8 py-4 rounded-full font-label-md text-label-md hover:bg-surface-container-low transition-colors">
+                        Custom Arrangements
+                    </button>
+</div>
+</div>
+</div>
+</header>
+<!-- Featured Products Section -->
+<section class="py-section-gap px-6 md:px-margin-desktop max-w-container-max mx-auto">
+<div class="flex justify-between items-end mb-16">
+<div class="space-y-2">
+<h2 class="font-headline-lg text-headline-lg text-primary">The Seasonal Edit</h2>
+<p class="font-body-md text-body-md text-on-surface-variant">Our most coveted arrangements, curated for the present moment.</p>
+</div>
+<a class="font-label-md text-label-md text-primary flex items-center gap-2 hover:underline decoration-secondary transition-all" href="#">
+                View All Bouquets <span class="material-symbols-outlined text-sm">arrow_forward</span>
+</a>
+</div>
+<!-- Bento-ish Grid -->
+<div class="grid grid-cols-1 md:grid-cols-12 gap-8 h-auto">
+<!-- Large Card -->
+<div class="md:col-span-7 group cursor-pointer reveal-on-scroll visible">
+<div class="relative overflow-hidden rounded-2xl aspect-[4/3] bg-surface-container/50 backdrop-blur-sm"><button class="absolute top-4 right-4 z-10 w-10 h-10 bg-white/80 backdrop-blur-md rounded-full flex items-center justify-center text-secondary hover:bg-white transition-all shadow-sm"><span class="material-symbols-outlined">favorite</span></button>
+<img class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" data-alt="A massive centerpiece bouquet featuring rare white orchids and hydrangeas in a heavy ceramic vase. The lighting is soft and moody, emphasizing the velvety texture of the petals. The scene is set in a modern, luxury living room with neutral tones, highlighting the organic beauty of the arrangement as a focal point of high-end home decor." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBmUzEQXfKkL82R0xSSXeJNn3uLXVqmQQMSMYODUGuuIsRMzmpVgEpLXFmndlxSC9syPQ1gcnbVSdQBuIM-QK-ajBXhV15aWbFDRfGnyC7kUW2O7qKOz1zIHQAxQo1T6d4Sc09ZFJlpl5uzDuG12VGrKG2kI9BKD5ZhXKMGYnLkgBAlnQTkVDtW8PbosLCb3bVpfFiFZjP_cO48NHs8dS7NFmcA2b-Lv2fd8HbNoCTZHj7x7GTCliTIy4SDF8yvWRmfokOOw2mdxOWO"/>
+<div class="absolute bottom-6 left-6 right-6 p-6 bg-white/60 backdrop-blur-lg rounded-xl opacity-0 translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300">
+<div class="flex justify-between items-center">
+<div>
+<h3 class="font-headline-md text-headline-md text-primary">Moonlight Serenade</h3>
+<p class="text-on-surface-variant">$145.00</p>
+</div>
+<button class="bg-primary text-white p-3 rounded-full hover:bg-secondary transition-colors">
+<span class="material-symbols-outlined">add_shopping_cart</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Side Cards Grid -->
+<div class="md:col-span-5 grid grid-rows-2 gap-8">
+<!-- Card Top -->
+<div class="group cursor-pointer reveal-on-scroll visible" style="transition-delay: 100ms;">
+<div class="relative overflow-hidden rounded-2xl aspect-[16/9] bg-surface-container/50 backdrop-blur-sm"><button class="absolute top-4 right-4 z-10 w-8 h-8 bg-white/80 backdrop-blur-md rounded-full flex items-center justify-center text-secondary hover:bg-white transition-all shadow-sm"><span class="material-symbols-outlined text-lg">favorite</span></button>
+<img class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" data-alt="A warm, vibrant bouquet of coral roses and golden poppies arranged in a rustic terracotta pitcher. The morning sun casts long, soft shadows across a light wooden table. The aesthetic is romantic and welcoming, evoking a feeling of comfort and artisanal luxury in a sun-drenched breakfast nook." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDGpVS38gskY3xt-HHnzRkWthDv68OOW6kzGsguDolYL6IW2tCvltDyRt5M4j6GsS3KuIDTWCgQYa2L7KyJ87qJ_uZC0gN4KfSkQv-qr3BCObPeFXQe4PjDn5nLPAonXK_GjYu1GO2OtrbxwWwp2Im-hKqJkJqhUKz6h2U_WYGrC3OLl_HkWA2QipDRr653O4DpQ-v2Bn3icIpHy_9GXOqdUD_6am0UKwKmwvh5nBbwiXmmrlPRmCRDXWomf5msadT8SwHeH95VJz7U"/>
+<div class="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
+<div class="absolute bottom-4 left-4 text-white">
+<h3 class="font-label-md text-label-md font-bold">Dawn Chorus</h3>
+<p class="text-xs">$89.00</p>
+</div>
+</div>
+</div>
+<!-- Card Bottom -->
+<div class="group cursor-pointer reveal-on-scroll visible" style="transition-delay: 200ms;">
+<div class="relative overflow-hidden rounded-2xl aspect-[16/9] bg-surface-container/50 backdrop-blur-sm"><button class="absolute top-4 right-4 z-10 w-8 h-8 bg-white/80 backdrop-blur-md rounded-full flex items-center justify-center text-secondary hover:bg-white transition-all shadow-sm"><span class="material-symbols-outlined text-lg">favorite</span></button>
+<img class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" data-alt="A sophisticated, minimalist arrangement of dried lavender, cotton bolls, and eucalyptus branches in a slim amber glass vase. The style is Scandinavian-inspired, with a neutral and muted color palette. The image conveys a sense of timeless elegance and organic simplicity, perfect for a refined interior space." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAzuLqiATK46iQ4cC95uKUEul6-ayDFO8ZkSgymkOTBdP8xRTTvfcXnCuxGmnX3zw6SlLOWjeOeRl2RkVR81CYi7YIqEtzZWEE1Sj8gTm-_S-asXk3_Tf_ipvSX9DNs-IyjfFI9ImCPlb-KBIMN5ss93Zegwl8J0crzbQ-y2Z3f1LIOTQEzulCuH_vcOORw8WUdW9eqUsKG55KeM0WvWhrDZW98OPKOjct6KjaAKJguU7tFOCzX-OL3Kn0oZkK5OJ4UUXcRtwdNsB-8"/>
+<div class="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
+<div class="absolute bottom-4 left-4 text-white">
+<h3 class="font-label-md text-label-md font-bold">Timeless Mist</h3>
+<p class="text-xs">$65.00</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section><section class="py-section-gap px-6 md:px-margin-desktop max-w-container-max mx-auto border-t border-outline-variant/30"><div class="flex justify-between items-end mb-16"><div class="space-y-2"><h2 class="font-headline-lg text-headline-lg text-primary">Best Sellers</h2><p class="font-body-md text-body-md text-on-surface-variant">Our most loved arrangements, chosen by you.</p></div></div><div class="grid grid-cols-1 md:grid-cols-3 gap-8"><div class="group cursor-pointer reveal-on-scroll"><div class="relative overflow-hidden rounded-2xl aspect-[4/3] bg-surface-container/50 backdrop-blur-sm"><img alt="Best Seller 1" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC9BQB-lbOLL8xfGCnIdTkLWmUYcmMOqLF25AwEroFnX1NlW5HapZq15FcV4abdRlnE_Iv6vuJz9qQsI-3yRl8sPe8PxNf6xmJEYMqEd_v6wiPYqDn6I5TLCiFSSCtyMfA56yEqysSiIh_3DL2wYMFid_5EtM2qrFaGqleAffBiyJzwnvXtmcIj6CY6QPi7z_pqybExWNK6nRzphymJVk-ypPuO6tsvVxfZrYweqi6s6Wsk30_HFFvVs6fW0Qn-6wdA60v16WNbu5pN"/><button class="absolute top-4 right-4 w-10 h-10 bg-white/80 backdrop-blur-md rounded-full flex items-center justify-center text-secondary hover:bg-white transition-all shadow-sm"><span class="material-symbols-outlined">favorite</span></button><div class="p-4"><h3 class="font-headline-md text-headline-md text-primary">Velvet Romance</h3><p class="text-on-surface-variant">$95.00</p></div></div></div><div class="group cursor-pointer reveal-on-scroll" style="transition-delay: 100ms;"><div class="relative overflow-hidden rounded-2xl aspect-[4/3] bg-surface-container/50 backdrop-blur-sm"><img alt="Best Seller 2" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBmUzEQXfKkL82R0xSSXeJNn3uLXVqmQQMSMYODUGuuIsRMzmpVgEpLXFmndlxSC9syPQ1gcnbVSdQBuIM-QK-ajBXhV15aWbFDRfGnyC7kUW2O7qKOz1zIHQAxQo1T6d4Sc09ZFJlpl5uzDuG12VGrKG2kI9BKD5ZhXKMGYnLkgBAlnQTkVDtW8PbosLCb3bVpfFiFZjP_cO48NHs8dS7NFmcA2b-Lv2fd8HbNoCTZHj7x7GTCliTIy4SDF8yvWRmfokOOw2mdxOWO"/><button class="absolute top-4 right-4 w-10 h-10 bg-white/80 backdrop-blur-md rounded-full flex items-center justify-center text-secondary hover:bg-white transition-all shadow-sm"><span class="material-symbols-outlined">favorite</span></button><div class="p-4"><h3 class="font-headline-md text-headline-md text-primary">Golden Hour</h3><p class="text-on-surface-variant">$110.00</p></div></div></div><div class="group cursor-pointer reveal-on-scroll" style="transition-delay: 200ms;"><div class="relative overflow-hidden rounded-2xl aspect-[4/3] bg-surface-container/50 backdrop-blur-sm"><img alt="Best Seller 3" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDGpVS38gskY3xt-HHnzRkWthDv68OOW6kzGsguDolYL6IW2tCvltDyRt5M4j6GsS3KuIDTWCgQYa2L7KyJ87qJ_uZC0gN4KfSkQv-qr3BCObPeFXQe4PjDn5nLPAonXK_GjYu1GO2OtrbxwWwp2Im-hKqJkJqhUKz6h2U_WYGrC3OLl_HkWA2QipDRr653O4DpQ-v2Bn3icIpHy_9GXOqdUD_6am0UKwKmwvh5nBbwiXmmrlPRmCRDXWomf5msadT8SwHeH95VJz7U"/><button class="absolute top-4 right-4 w-10 h-10 bg-white/80 backdrop-blur-md rounded-full flex items-center justify-center text-secondary hover:bg-white transition-all shadow-sm"><span class="material-symbols-outlined">favorite</span></button><div class="p-4"><h3 class="font-headline-md text-headline-md text-primary">Wild Meadow</h3><p class="text-on-surface-variant">$78.00</p></div></div></div></div></section>
+<!-- Why Choose Us -->
+<section class="bg-surface-container-low/60 backdrop-blur-md py-section-gap">
+<div class="px-6 md:px-margin-desktop max-w-container-max mx-auto text-center mb-20">
+<h2 class="font-headline-lg text-headline-lg text-primary mb-4">The zoéflorist Promise</h2>
+<div class="w-24 h-1 bg-secondary mx-auto rounded-full"></div>
+</div>
+<div class="px-6 md:px-margin-desktop max-w-container-max mx-auto grid grid-cols-1 md:grid-cols-3 gap-16">
+<div class="text-center space-y-4 reveal-on-scroll visible">
+<div class="w-16 h-16 bg-primary-container text-on-primary-container rounded-full flex items-center justify-center mx-auto mb-6">
+<span class="material-symbols-outlined text-3xl">eco</span>
+</div>
+<h3 class="font-headline-md text-headline-md text-primary">Sustainably Sourced</h3>
+<p class="font-body-md text-body-md text-on-surface-variant leading-relaxed">
+                    We partner with local growers who practice ethical farming, ensuring every stem is grown with respect for the earth.
+                </p>
+</div>
+<div class="text-center space-y-4 reveal-on-scroll visible" style="transition-delay: 150ms;">
+<div class="w-16 h-16 bg-primary-container text-on-primary-container rounded-full flex items-center justify-center mx-auto mb-6">
+<span class="material-symbols-outlined text-3xl">palette</span>
+</div>
+<h3 class="font-headline-md text-headline-md text-primary">Artisan Curation</h3>
+<p class="font-body-md text-body-md text-on-surface-variant leading-relaxed">
+                    Each bouquet is an original composition, designed by floral artists who treat every petal as a brushstroke.
+                </p>
+</div>
+<div class="text-center space-y-4 reveal-on-scroll visible" style="transition-delay: 300ms;">
+<div class="w-16 h-16 bg-primary-container text-on-primary-container rounded-full flex items-center justify-center mx-auto mb-6">
+<span class="material-symbols-outlined text-3xl">schedule</span>
+</div>
+<h3 class="font-headline-md text-headline-md text-primary">Same-Day Elegance</h3>
+<p class="font-body-md text-body-md text-on-surface-variant leading-relaxed">
+                    Life happens in the now. We offer meticulous same-day delivery for those spontaneous moments of celebration.
+                </p>
+</div>
+</div>
+</section>
+<!-- Newsletter -->
+<section class="py-section-gap relative overflow-hidden">
+<div class="absolute top-0 right-0 -translate-y-1/2 translate-x-1/2 w-96 h-96 bg-primary-container/20 rounded-full blur-3xl"></div>
+<div class="absolute bottom-0 left-0 translate-y-1/2 -translate-x-1/2 w-64 h-64 bg-secondary-fixed/30 rounded-full blur-3xl"></div>
+<div class="px-6 md:px-margin-desktop max-w-2xl mx-auto text-center relative z-10">
+<h2 class="font-headline-lg text-headline-lg text-primary mb-6">Join our Flourishing Community</h2>
+<p class="font-body-lg text-body-lg text-on-surface-variant mb-10">
+                Receive floral care tips, exclusive seasonal previews, and invitations to our intimate garden workshops.
+            </p>
+<form class="flex flex-col sm:flex-row gap-4 p-2 bg-white rounded-full shadow-lg shadow-primary/5">
+<input class="flex-grow bg-transparent border-none focus:ring-0 px-6 py-4 rounded-full font-body-md" placeholder="Enter your email address" required="" type="email"/>
+<button class="bg-primary text-white px-8 py-4 rounded-full font-label-md text-label-md hover:bg-secondary transition-all active:scale-95" type="submit">
+                    Subscribe
+                </button>
+</form>
+<p class="text-caption text-on-surface-variant mt-4 opacity-70">We respect your inbox like we respect our blooms. No spam, ever.</p>
+</div>
+</section>
+<!-- Footer -->
+<footer class="bg-surface-container-high/80 dark:bg-surface-dim/80 backdrop-blur-md border-t border-outline-variant w-full py-12">
+<div class="flex flex-col md:flex-row justify-between items-center px-6 md:px-margin-desktop max-w-container-max mx-auto gap-8">
+<div class="flex flex-col items-center md:items-start gap-4">
+<div class="font-headline-md text-headline-md text-primary">
+<img alt="zoéflorist footer logo" class="h-8" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDJ0vF7ozckSRAi12g7WOcWF1NQC4GuC4G-G8Zef1QcMlnE-BJrM_wG25PqdfDPUUoRJS514QQzsdxtrKXZh6Qu5TDyBFzbPNfQG7AFgVtKtVcMtqDcOxLosOMCufhD-B6VS1hSiDDpQbM08tad9JnuKyhAEoZ5l1qUNebnqQb2BIjk7jhJ0eD0uj7-aIPS02w4_uxtPqpiPPqdp5poR89J7kVpKQlVDZdVGKWFR9AA3tC_-c19yzrcBToBweWkHPtfNcuFKsnAYIk8"/>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant text-center md:text-left max-w-xs">
+                    Curating luxury floral experiences for the moments that matter most.
+                </p>
+</div>
+<div class="flex flex-wrap justify-center gap-8 text-label-md font-label-md">
+<a class="text-on-surface-variant hover:text-primary transition-colors" href="#">Privacy Policy</a>
+<a class="text-on-surface-variant hover:text-primary transition-colors" href="#">Terms of Service</a>
+<a class="text-on-surface-variant hover:text-primary transition-colors" href="#">Shipping Info</a>
+<a class="text-on-surface-variant hover:text-primary transition-colors" href="#">Contact Us</a>
+</div>
+<div class="flex flex-col items-center md:items-end gap-4">
+<div class="flex gap-4">
+<a class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary hover:bg-primary hover:text-white transition-all" href="#">
+<span class="material-symbols-outlined text-lg">brand_awareness</span>
+</a>
+<a class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary hover:bg-primary hover:text-white transition-all" href="#">
+<span class="material-symbols-outlined text-lg">local_florist</span>
+</a>
+</div>
+<p class="font-body-md text-body-md text-on-surface dark:text-on-surface-variant">© 2024 zoéflorist. Handcrafted with love.</p>
+</div>
+</div>
+</footer>
+<!-- FAB for quick contact - Contextual on Home -->
+<button class="fixed bottom-8 right-8 bg-secondary text-white w-14 h-14 rounded-full shadow-2xl flex items-center justify-center hover:scale-110 active:scale-95 transition-all z-40 group">
+<span class="material-symbols-outlined">chat_bubble</span>
+<span class="absolute right-full mr-4 bg-white text-primary px-4 py-2 rounded-lg text-sm font-label-md shadow-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">Questions? Chat with us</span>
+</button>
+<script>
+    // WebGL Shader Setup
+    const canvas = document.getElementById('gravity-shader-canvas');
+    const gl = canvas.getContext('webgl');
+
+    if (gl) {
+        const vertexShaderSource = `
+            attribute vec2 a_position;
+            attribute vec2 a_texCoord;
+            varying vec2 v_texCoord;
+            void main() {
+                gl_Position = vec4(a_position, 0, 1);
+                v_texCoord = a_texCoord;
+            }
+        `;
+
+        const fragmentShaderSource = `
+            precision highp float;
+            uniform float u_time;
+            uniform vec2 u_resolution;
+            uniform vec2 u_mouse;
+            varying vec2 v_texCoord;
+            float hash(float n) { return fract(sin(n) * 43758.5453123); }
+            float noise(vec2 p) {
+                vec2 i = floor(p); vec2 f = fract(p);
+                f = f * f * (3.0 - 2.0 * f);
+                float n = i.x + i.y * 57.0;
+                return mix(mix(hash(n + 0.0), hash(n + 1.0), f.x),
+                           mix(hash(n + 57.0), hash(n + 58.0), f.x), f.y);
+            }
+            void main() {
+                vec2 uv = v_texCoord;
+                vec2 centered_uv = (uv - 0.5) * vec2(u_resolution.x / u_resolution.y, 1.0);
+                vec3 backgroundColor = vec3(1.0, 0.972, 0.965);
+                float petals = 0.0;
+                for(float i = 0.0; i < 15.0; i++) {
+                    float t = u_time * (0.1 + hash(i * 123.4) * 0.2);
+                    vec2 pos = vec2(hash(i * 456.7) * 2.0 - 1.0, hash(i * 789.0) * 2.0 - 1.0);
+                    pos.x += sin(t + i) * 0.3 + noise(vec2(t, i)) * 0.1;
+                    pos.y += cos(t * 0.5 + i * 2.0) * 0.4 + (hash(i) - 0.5) * 0.2;
+                    vec2 m = (u_mouse / u_resolution - 0.5) * vec2(u_resolution.x / u_resolution.y, 1.0);
+                    float distToMouse = length(centered_uv - m);
+                    pos += normalize(centered_uv - m) * (0.05 / (distToMouse + 0.5));
+                    float dist = length(centered_uv - pos);
+                    float size = 0.02 + hash(i * 11.1) * 0.03;
+                    float petal = smoothstep(size, size * 0.5, dist);
+                    petals += petal;
+                }
+                vec3 petalColor = vec3(0.968, 0.772, 0.709);
+                vec3 finalColor = mix(backgroundColor, petalColor, petals * 0.4);
+                float vignette = 1.0 - length(uv - 0.5) * 0.5;
+                finalColor *= vignette;
+                gl_FragColor = vec4(finalColor, 1.0);
+            }
+        `;
+
+        function createShader(gl, type, source) {
+            const shader = gl.createShader(type);
+            gl.shaderSource(shader, source);
+            gl.compileShader(shader);
+            return shader;
+        }
+
+        const vertexShader = createShader(gl, gl.VERTEX_SHADER, vertexShaderSource);
+        const fragmentShader = createShader(gl, gl.FRAGMENT_SHADER, fragmentShaderSource);
+        const program = gl.createProgram();
+        gl.attachShader(program, vertexShader);
+        gl.attachShader(program, fragmentShader);
+        gl.linkProgram(program);
+        gl.useProgram(program);
+
+        const positionBuffer = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 1,-1, -1,1, -1,1, 1,-1, 1,1]), gl.STATIC_DRAW);
+        const positionLocation = gl.getAttribLocation(program, 'a_position');
+        gl.enableVertexAttribArray(positionLocation);
+        gl.vertexAttribPointer(positionLocation, 2, gl.FLOAT, false, 0, 0);
+
+        const texCoordBuffer = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, texCoordBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([0,0, 1,0, 0,1, 0,1, 1,0, 1,1]), gl.STATIC_DRAW);
+        const texCoordLocation = gl.getAttribLocation(program, 'a_texCoord');
+        gl.enableVertexAttribArray(texCoordLocation);
+        gl.vertexAttribPointer(texCoordLocation, 2, gl.FLOAT, false, 0, 0);
+
+        const timeLocation = gl.getUniformLocation(program, 'u_time');
+        const resolutionLocation = gl.getUniformLocation(program, 'u_resolution');
+        const mouseLocation = gl.getUniformLocation(program, 'u_mouse');
+
+        let mouseX = 0, mouseY = 0;
+        window.addEventListener('mousemove', e => {
+            mouseX = e.clientX;
+            mouseY = canvas.height - e.clientY;
+        });
+
+        function resize() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            gl.viewport(0, 0, canvas.width, canvas.height);
+        }
+        window.addEventListener('resize', resize);
+        resize();
+
+        function render(time) {
+            gl.uniform1f(timeLocation, time * 0.001);
+            gl.uniform2f(resolutionLocation, canvas.width, canvas.height);
+            gl.uniform2f(mouseLocation, mouseX, mouseY);
+            gl.drawArrays(gl.TRIANGLES, 0, 6);
+            requestAnimationFrame(render);
+        }
+        requestAnimationFrame(render);
+    }
+
+    // Intersection Observer for scroll animations
+    const observerOptions = {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('visible');
+            }
+        });
+    }, observerOptions);
+
+    document.querySelectorAll('.reveal-on-scroll').forEach(el => observer.observe(el));
+
+    // Sticky Nav effect
+    window.addEventListener('scroll', () => {
+        const nav = document.querySelector('nav');
+        if (window.scrollY > 50) {
+            nav.classList.add('py-2', 'shadow-sm');
+            nav.classList.remove('py-4');
+        } else {
+            nav.classList.add('py-4');
+            nav.classList.remove('py-2', 'shadow-sm');
+        }
+    });
+</script>
+</body></html>

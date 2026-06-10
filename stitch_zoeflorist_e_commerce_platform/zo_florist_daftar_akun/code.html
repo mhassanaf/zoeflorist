@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+
+<html class="light" lang="id"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Daftar - Zoéflorist</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "surface-bright": "#fff8f6",
+                    "on-tertiary-fixed": "#281809",
+                    "surface-tint": "#7b5549",
+                    "on-tertiary-fixed-variant": "#584231",
+                    "primary-fixed": "#ffdbcf",
+                    "tertiary-fixed": "#fddcc4",
+                    "surface-dim": "#e8d7d0",
+                    "secondary-container": "#fe8481",
+                    "error-container": "#ffdad6",
+                    "on-primary-fixed": "#2f140b",
+                    "error": "#ba1a1a",
+                    "surface-container-highest": "#f0dfd8",
+                    "surface-container-high": "#f6e5de",
+                    "surface": "#fff8f6",
+                    "tertiary": "#715a47",
+                    "surface-container": "#fceae3",
+                    "on-background": "#221a16",
+                    "on-surface-variant": "#504440",
+                    "on-error-container": "#93000a",
+                    "surface-variant": "#f0dfd8",
+                    "on-primary-fixed-variant": "#613e33",
+                    "secondary": "#a13d3d",
+                    "on-error": "#ffffff",
+                    "primary-container": "#f7c5b5",
+                    "tertiary-fixed-dim": "#e0c1aa",
+                    "on-secondary-container": "#751c1f",
+                    "inverse-on-surface": "#ffede6",
+                    "background": "#fff8f6",
+                    "inverse-primary": "#edbcac",
+                    "inverse-surface": "#382e2a",
+                    "outline": "#83746f",
+                    "on-secondary": "#ffffff",
+                    "on-secondary-fixed-variant": "#812628",
+                    "surface-container-lowest": "#ffffff",
+                    "secondary-fixed-dim": "#ffb3af",
+                    "secondary-fixed": "#ffdad8",
+                    "on-surface": "#221a16",
+                    "tertiary-container": "#eacab3",
+                    "on-primary": "#ffffff",
+                    "on-secondary-fixed": "#410006",
+                    "on-tertiary-container": "#6b5442",
+                    "primary": "#7b5549",
+                    "on-primary-container": "#755043",
+                    "surface-container-low": "#fff1eb",
+                    "outline-variant": "#d5c3bd",
+                    "primary-fixed-dim": "#edbcac",
+                    "on-tertiary": "#ffffff"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "margin-desktop": "64px",
+                    "margin-mobile": "16px",
+                    "section-gap": "120px",
+                    "gutter": "24px",
+                    "container-max": "1280px",
+                    "base": "8px"
+            },
+            "fontFamily": {
+                    "headline-md": ["Playfair Display"],
+                    "body-md": ["Inter"],
+                    "headline-lg-mobile": ["Playfair Display"],
+                    "caption": ["Inter"],
+                    "body-lg": ["Inter"],
+                    "label-md": ["Inter"],
+                    "headline-lg": ["Playfair Display"],
+                    "display-lg": ["Playfair Display"]
+            },
+            "fontSize": {
+                    "headline-md": ["28px", {"lineHeight": "1.3", "fontWeight": "600"}],
+                    "body-md": ["16px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                    "headline-lg-mobile": ["32px", {"lineHeight": "1.2", "fontWeight": "600"}],
+                    "caption": ["12px", {"lineHeight": "1.4", "fontWeight": "400"}],
+                    "body-lg": ["18px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                    "label-md": ["14px", {"lineHeight": "1.4", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                    "headline-lg": ["40px", {"lineHeight": "1.2", "fontWeight": "600"}],
+                    "display-lg": ["56px", {"lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "700"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .fluid-transition {
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .form-focus-glow:focus {
+            box-shadow: 0 0 0 4px rgba(247, 197, 181, 0.3);
+        }
+    </style>
+</head>
+<body class="bg-[#FAF4F0] min-h-screen flex items-center justify-center font-body-md overflow-x-hidden">
+<!-- Registration Page Container -->
+<main class="w-full h-screen grid grid-cols-1 md:grid-cols-2 overflow-hidden bg-surface-bright">
+<!-- Left Side: Visual Experience (Hidden on Mobile) -->
+<section class="hidden md:flex relative h-full overflow-hidden">
+<div class="absolute inset-0 bg-primary/10 mix-blend-multiply z-10"></div>
+<div class="absolute inset-0 bg-cover bg-center scale-105 hover:scale-100 transition-transform duration-[2000ms] ease-out" data-alt="A luxurious, high-end editorial close-up of premium artisanal floral arrangements. The scene features a collection of soft pink peonies, delicate ranunculus, and eucalyptus leaves in a minimalist ceramic vase. The lighting is soft, natural, and warm, emphasizing the organic textures and serene, romantic mood of the Zoéflorist brand. The background is a clean, neutral tone consistent with the premium minimalist aesthetic of #FAF4F0." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuD5kDezo185GZNJeKi_2pJrJkby9FHDog0Uiwp8n9be2iIo52SCMuoCyu4WnGDb7SNA4VBNOTge_salCmsIkbJhE_q3DbNoS0umSTboIuLMsnxvYrgEEkjthrKmh6WWQFubk-Zwm8Wbu_X_A4vF2R753VStyV1darBeC1B2R2e5Yo2T6wdR_x-f-NmdoJUVQoqqL0fw8AELUJumyeUymrfzYUTM7c0YtOqicXhpPK75BYjgrOpQ7xg-DHqDDxWgHziHohL2lYgQQCe9');"></div>
+<!-- Floating Branding Quote -->
+<div class="absolute bottom-16 left-16 right-16 z-20">
+<div class="bg-surface-bright/80 backdrop-blur-md p-10 rounded-xl shadow-2xl border border-white/20">
+<h2 class="font-headline-md text-headline-md text-primary mb-4 italic">
+                        "Setiap kelopak menceritakan sebuah kisah cinta yang abadi."
+                    </h2>
+<p class="font-body-md text-body-md text-on-surface-variant">
+                        Zoéflorist merancang lebih dari sekadar karangan bunga; kami merancang momen berharga yang akan selalu Anda kenang.
+                    </p>
+</div>
+</div>
+</section>
+<!-- Right Side: Registration Form -->
+<section class="flex flex-col items-center justify-center p-8 md:p-12 lg:p-24 bg-surface-bright overflow-y-auto">
+<div class="w-full max-w-md">
+<!-- Brand Header -->
+<div class="mb-12 flex flex-col items-center md:items-start">
+<a class="block mb-8 hover:opacity-80 transition-opacity" href="/">
+<img alt="Zoéflorist Logo" class="h-16 w-auto object-contain" src="https://lh3.googleusercontent.com/aida/AP1WRLu7X13OLmx3jf08cI-uJP4g6rsvEjOfNuvKba61QRQgl2suFAWlU2dOovHvQ8Sfb0L_L8eKLNqRf0ZJCOBXnCT0eBbEjCUW-ysbq9-3Cd-k1OOBBGnzGntjvFwESEnUZD6OcOhMmy5_cOdQbgiSWZhDDOWz48D7UtvATopK8O03tAQ7T1s7r6X4IhjS_RmIOntRq7X_i0vrT3Z5kUD2WvJZDwQOgIpt-oxC52I4Tl26bq5re3tM4IBJ07DC"/>
+</a>
+<h1 class="font-headline-lg-mobile md:font-headline-lg text-headline-lg-mobile md:text-headline-lg text-on-background mb-3">
+                        Mulai Perjalanan Bunga Anda
+                    </h1>
+<p class="font-body-md text-body-md text-on-surface-variant">
+                        Bergabunglah dengan komunitas kami untuk mendapatkan penawaran eksklusif dan inspirasi floral harian.
+                    </p>
+</div>
+<!-- Registration Form -->
+<form class="space-y-6" onsubmit="event.preventDefault();">
+<!-- Full Name -->
+<div class="space-y-2">
+<label class="font-label-md text-label-md text-on-surface-variant" for="name">Full Name</label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline-variant">person</span>
+<input class="w-full pl-12 pr-4 py-4 bg-[#D2C9C4]/15 border-none rounded-xl focus:ring-2 focus:ring-primary-container text-on-surface placeholder:text-outline-variant fluid-transition form-focus-glow" id="name" placeholder="Masukkan nama lengkap Anda" type="text"/>
+</div>
+</div>
+<!-- Email -->
+<div class="space-y-2">
+<label class="font-label-md text-label-md text-on-surface-variant" for="email">Email</label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline-variant">mail</span>
+<input class="w-full pl-12 pr-4 py-4 bg-[#D2C9C4]/15 border-none rounded-xl focus:ring-2 focus:ring-primary-container text-on-surface placeholder:text-outline-variant fluid-transition form-focus-glow" id="email" placeholder="email@contoh.com" type="email"/>
+</div>
+</div>
+<!-- Password Grid -->
+<div class="grid grid-cols-1 gap-6">
+<!-- Password -->
+<div class="space-y-2">
+<label class="font-label-md text-label-md text-on-surface-variant" for="password">Password</label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline-variant">lock</span>
+<input class="w-full pl-12 pr-4 py-4 bg-[#D2C9C4]/15 border-none rounded-xl focus:ring-2 focus:ring-primary-container text-on-surface placeholder:text-outline-variant fluid-transition form-focus-glow" id="password" placeholder="Buat kata sandi" type="password"/>
+</div>
+</div>
+<!-- Confirm Password -->
+<div class="space-y-2">
+<label class="font-label-md text-label-md text-on-surface-variant" for="confirm-password">Confirm Password</label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline-variant">verified_user</span>
+<input class="w-full pl-12 pr-4 py-4 bg-[#D2C9C4]/15 border-none rounded-xl focus:ring-2 focus:ring-primary-container text-on-surface placeholder:text-outline-variant fluid-transition form-focus-glow" id="confirm-password" placeholder="Ulangi kata sandi" type="password"/>
+</div>
+</div>
+</div>
+<!-- T&C Checkbox -->
+<div class="flex items-start space-x-3 pt-2">
+<div class="flex items-center h-5">
+<input class="w-5 h-5 rounded border-outline-variant text-secondary focus:ring-secondary/20 transition-all cursor-pointer" id="terms" type="checkbox"/>
+</div>
+<label class="text-sm font-body-md text-on-surface-variant leading-tight" for="terms">
+                            I agree to <a class="text-primary hover:underline font-medium" href="#">Terms &amp; Conditions</a> and our privacy policy regarding data usage.
+                        </label>
+</div>
+<!-- Submit Button -->
+<button class="w-full bg-primary-container text-on-primary-container font-label-md text-label-md py-5 rounded-full hover:shadow-lg hover:scale-[1.02] active:scale-95 transition-all duration-300 flex items-center justify-center gap-2 group">
+                        Daftar Akun
+                        <span class="material-symbols-outlined group-hover:translate-x-1 transition-transform">arrow_forward</span>
+</button>
+</form>
+<!-- Footer Links -->
+<div class="mt-12 text-center">
+<p class="font-body-md text-body-md text-on-surface-variant mb-6">
+                        Sudah punya akun? 
+                        <a class="text-primary font-semibold hover:underline decoration-primary-container decoration-2 underline-offset-4" href="#">Masuk</a>
+</p>
+<div class="flex items-center justify-center space-x-4">
+<div class="h-[1px] flex-grow bg-outline-variant/30"></div>
+<span class="text-label-md font-label-md text-outline-variant">ATAU DAFTAR DENGAN</span>
+<div class="h-[1px] flex-grow bg-outline-variant/30"></div>
+</div>
+<div class="mt-6 flex justify-center gap-4">
+<button class="flex-1 py-3 px-6 rounded-xl bg-surface-container-low border border-outline-variant/20 hover:bg-surface-container transition-colors flex items-center justify-center gap-2 font-label-md text-label-md text-on-surface">
+<svg class="w-5 h-5" fill="currentColor" viewbox="0 0 24 24"><path d="M12.48 10.92v3.28h7.84c-.24 1.84-.908 3.152-1.928 4.176-1.248 1.248-3.216 2.592-7.84 2.592-6.4 0-11.584-5.184-11.584-11.584s5.184-11.584 11.584-11.584c3.48 0 6.024 1.368 7.912 3.176l2.256-2.256C18.152 2.312 15.624.504 12.48.504c-6.624 0-12 5.376-12 12s5.376 12 12 12c3.576 0 6.264-1.176 8.352-3.352 2.136-2.136 2.808-5.136 2.808-7.536 0-.72-.048-1.416-.144-2.04H12.48z"></path></svg>
+                            Google
+                        </button>
+<button class="flex-1 py-3 px-6 rounded-xl bg-surface-container-low border border-outline-variant/20 hover:bg-surface-container transition-colors flex items-center justify-center gap-2 font-label-md text-label-md text-on-surface">
+<svg class="w-5 h-5" fill="currentColor" viewbox="0 0 24 24"><path d="M16.365 1.43c-1.14 0-2.62.67-3.39 1.57-1.12 1.28-1.2 2.62-1.11 3.51.13.04.3.06.48.06 1.07 0 2.41-.69 3.23-1.66.82-.96 1.33-2.3 1.11-3.4-.11-.05-.22-.08-.32-.08zM15.42 6.64c-1.32 0-2.92.83-3.72.83-.8 0-2.1-.79-3.22-.79-2.04 0-4.04 1.2-5.06 2.97-2.04 3.53-.52 8.76 1.47 11.64.98 1.41 2.14 3.01 3.66 3.01 1.46 0 2.01-.89 3.77-.89 1.77 0 2.27.89 3.8.89 1.55 0 2.58-1.43 3.55-2.85 1.12-1.63 1.58-3.2 1.6-3.28-.03-.02-3.07-1.18-3.11-4.71-.03-2.95 2.42-4.37 2.53-4.44-1.38-2.02-3.52-2.3-4.27-2.37z"></path></svg>
+                            Apple
+                        </button>
+</div>
+</div>
+<!-- Legal/Copyright Footer -->
+<div class="mt-16 text-center md:text-left border-t border-outline-variant/20 pt-8">
+<p class="font-caption text-caption text-outline-variant">
+                        © 2024 Zoéflorist. Crafted for timeless romance. Semua hak cipta dilindungi undang-undang.
+                    </p>
+</div>
+</div>
+</section>
+</main>
+<!-- Interactive Micro-interactions Script -->
+<script>
+        document.querySelectorAll('input').forEach(input => {
+            input.addEventListener('focus', () => {
+                input.parentElement.querySelector('.material-symbols-outlined').style.color = '#7b5549';
+            });
+            input.addEventListener('blur', () => {
+                input.parentElement.querySelector('.material-symbols-outlined').style.color = '#d5c3bd';
+            });
+        });
+
+        // Simple validation feedback logic (mock)
+        const password = document.getElementById('password');
+        const confirm = document.getElementById('confirm-password');
+
+        confirm.addEventListener('input', () => {
+            if (confirm.value !== password.value && confirm.value.length > 0) {
+                confirm.classList.add('ring-2', 'ring-error/20');
+            } else {
+                confirm.classList.remove('ring-2', 'ring-error/20');
+            }
+        });
+    </script>
+</body></html>
