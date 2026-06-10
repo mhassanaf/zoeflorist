@@ -71,9 +71,14 @@ export default function CheckoutClient({ isLoggedIn }: CheckoutClientProps) {
 
     const fetchProvinces = async () => {
       setIsLoadingProvinces(true)
-      const data = await getProvinces()
-      setProvinces(data)
-      setIsLoadingProvinces(false)
+      try {
+        const data = await getProvinces()
+        setProvinces(data)
+      } catch (err) {
+        console.error('Failed to load provinces:', err)
+      } finally {
+        setIsLoadingProvinces(false)
+      }
     }
     fetchProvinces()
   }, [])
@@ -93,9 +98,14 @@ export default function CheckoutClient({ isLoggedIn }: CheckoutClientProps) {
 
     const fetchCities = async () => {
       setIsLoadingCities(true)
-      const data = await getCities(selectedProvince)
-      setCities(data)
-      setIsLoadingCities(false)
+      try {
+        const data = await getCities(selectedProvince)
+        setCities(data)
+      } catch (err) {
+        console.error('Failed to load cities:', err)
+      } finally {
+        setIsLoadingCities(false)
+      }
     }
     fetchCities()
 
@@ -116,10 +126,15 @@ export default function CheckoutClient({ isLoggedIn }: CheckoutClientProps) {
 
     const fetchCosts = async () => {
       setIsLoadingCosts(true)
-      const totalWeight = cart.reduce((sum, item) => sum + 1000 * item.quantity, 0)
-      const data = await calculateShippingCost(selectedCity, selectedCourier, totalWeight)
-      setShippingCosts(data)
-      setIsLoadingCosts(false)
+      try {
+        const totalWeight = cart.reduce((sum, item) => sum + 1000 * item.quantity, 0)
+        const data = await calculateShippingCost(selectedCity, selectedCourier, totalWeight)
+        setShippingCosts(data)
+      } catch (err) {
+        console.error('Failed to load shipping costs:', err)
+      } finally {
+        setIsLoadingCosts(false)
+      }
     }
     fetchCosts()
 
