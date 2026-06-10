@@ -35,6 +35,8 @@ interface Order {
   payment_status: 'Unpaid' | 'Waiting Verification' | 'Paid' | 'Rejected'
   admin_message: string | null
   order_items: OrderItem[]
+  shipping_fee?: number
+  shipping_courier?: string | null
 }
 
 interface OrderCardClientProps {
@@ -219,16 +221,40 @@ export default function OrderCardClient({ order, userReviews }: OrderCardClientP
       </div>
 
       {/* Card Footer (Shipping and Total Info) */}
-      <div className="bg-brand-surface/30 border-t border-brand-neutral-1/10 px-6 py-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div className="text-xs text-brand-primary/70 max-w-md">
-          <span className="font-semibold text-brand-primary">Alamat Kirim: </span>
-          {order.shipping_name} ({order.shipping_phone}) - {order.shipping_address}
+      <div className="bg-brand-surface/30 border-t border-brand-neutral-1/10 px-6 py-4 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+        <div className="text-xs text-brand-primary/70 max-w-md space-y-1">
+          <div>
+            <span className="font-semibold text-brand-primary">Alamat Kirim: </span>
+            {order.shipping_name} ({order.shipping_phone}) - {order.shipping_address}
+          </div>
+          {order.shipping_courier && (
+            <div>
+              <span className="font-semibold text-brand-primary">Kurir Pengiriman: </span>
+              <span className="bg-brand-accent-soft/20 text-brand-accent-bold font-bold px-2 py-0.5 rounded text-[10px] uppercase font-sans">
+                {order.shipping_courier}
+              </span>
+            </div>
+          )}
         </div>
-        <div className="w-full sm:w-auto flex justify-between sm:justify-end items-baseline gap-4">
-          <span className="text-sm text-brand-primary/80 font-semibold font-sans">Total Transaksi</span>
-          <span className="text-lg font-serif font-bold text-brand-accent-bold">
-            Rp {Number(order.total_amount).toLocaleString('id-ID')}
-          </span>
+        <div className="w-full md:w-auto flex flex-col items-end gap-1.5 border-t md:border-t-0 border-brand-neutral-1/10 pt-4 md:pt-0">
+          {order.shipping_fee && order.shipping_fee > 0 ? (
+            <>
+              <div className="flex justify-between md:justify-end w-full md:w-auto gap-10 text-xs text-brand-primary/60">
+                <span>Subtotal Bouquet:</span>
+                <span>Rp {(Number(order.total_amount) - Number(order.shipping_fee)).toLocaleString('id-ID')}</span>
+              </div>
+              <div className="flex justify-between md:justify-end w-full md:w-auto gap-10 text-xs text-brand-primary/60">
+                <span>Ongkos Kirim:</span>
+                <span>Rp {Number(order.shipping_fee).toLocaleString('id-ID')}</span>
+              </div>
+            </>
+          ) : null}
+          <div className="flex justify-between md:justify-end w-full md:w-auto gap-10 items-baseline font-serif text-sm font-bold text-brand-primary">
+            <span>Total Bayar:</span>
+            <span className="text-lg text-brand-accent-bold">
+              Rp {Number(order.total_amount).toLocaleString('id-ID')}
+            </span>
+          </div>
         </div>
       </div>
 

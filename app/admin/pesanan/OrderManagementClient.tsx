@@ -22,27 +22,22 @@ interface OrderItem {
   price: number
   products: Product
 }
-
-interface UserProfile {
-  name: string
-  email: string
-}
-
 interface Order {
   id: string
-  user_id: string
-  status: 'Pending' | 'Processing' | 'Completed' | 'Cancelled'
   total_amount: number
   shipping_name: string
   shipping_phone: string
   shipping_address: string
   payment_method: string
-  created_at: string
-  profiles: UserProfile
-  order_items: OrderItem[]
   payment_proof_url: string | null
   payment_status: 'Unpaid' | 'Waiting Verification' | 'Paid' | 'Rejected'
   admin_message: string | null
+  created_at: string
+  status: 'Pending' | 'Processing' | 'Completed' | 'Cancelled'
+  profiles: { name: string | null; email: string | null } | null
+  order_items: OrderItem[]
+  shipping_fee?: number
+  shipping_courier?: string | null
 }
 
 interface OrderManagementClientProps {
@@ -343,6 +338,20 @@ export default function OrderManagementClient({ initialOrders }: OrderManagement
                                       order.payment_method === 'Bank Transfer' ? 'Transfer BCA' : order.payment_method === 'E-wallet' ? 'E-Wallet (Dana/GoPay)' : order.payment_method
                                     }
                                   </div>
+                                  {order.shipping_courier && (
+                                    <div>
+                                      <span className="font-semibold text-brand-primary">Ekspedisi (Kurir):</span>{' '}
+                                      <span className="bg-brand-accent-soft/20 text-brand-accent-bold font-bold px-1.5 py-0.5 rounded text-[9px] uppercase font-sans">
+                                        {order.shipping_courier}
+                                      </span>
+                                    </div>
+                                  )}
+                                  {order.shipping_fee !== undefined && order.shipping_fee > 0 && (
+                                    <div>
+                                      <span className="font-semibold text-brand-primary">Ongkos Kirim:</span>{' '}
+                                      Rp {Number(order.shipping_fee).toLocaleString('id-ID')}
+                                    </div>
+                                  )}
                                 </div>
                               </div>
 

@@ -8,6 +8,8 @@ interface ShippingDetails {
   shipping_phone: string
   shipping_address: string
   payment_method: string
+  shipping_fee?: number
+  shipping_courier?: string
 }
 
 interface CartItem {
@@ -48,17 +50,22 @@ export async function createOrder(shipping: ShippingDetails, items: CartItem[]) 
     totalAmount += Number(product.price) * item.quantity
   }
 
+  const shippingFee = Number(shipping.shipping_fee) || 0
+  const finalTotalAmount = totalAmount + shippingFee
+
   // Insert order
   const { data: order, error: orderError } = await supabase
     .from('orders')
     .insert({
       user_id: user.id,
       status: 'Pending',
-      total_amount: totalAmount,
+      total_amount: finalTotalAmount,
       shipping_name: shipping.shipping_name,
       shipping_phone: shipping.shipping_phone,
       shipping_address: shipping.shipping_address,
       payment_method: shipping.payment_method,
+      shipping_fee: shippingFee,
+      shipping_courier: shipping.shipping_courier || null,
     })
     .select()
     .single()
