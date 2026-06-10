@@ -349,7 +349,7 @@ export default function OrderCardClient({ order, userReviews }: OrderCardClientP
                 {/* Method QRIS */}
                 {order.payment_method === 'QRIS' && (
                   <div className="space-y-3 flex flex-col items-center">
-                    <div className="relative w-36 h-48 bg-white border border-brand-neutral-1/20 p-2 rounded-xl shadow-md">
+                    <div className="relative sm:w-64 sm:h-80 w-48 h-60 bg-white border border-brand-neutral-1/20 p-2 rounded-xl shadow-md">
                       <Image
                         src="/qris.png"
                         alt="QRIS zoeflorist"

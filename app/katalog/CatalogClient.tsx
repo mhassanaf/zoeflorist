@@ -22,13 +22,11 @@ interface CatalogClientProps {
   isLoggedIn: boolean
 }
 
-const COLORS = ['Semua', 'Merah', 'Putih', 'Merah Muda', 'Kuning', 'Peach']
 const SIZES = ['Semua', 'Kecil', 'Sedang', 'Besar']
 
 export default function CatalogClient({ initialProducts, favoritesMap, isLoggedIn }: CatalogClientProps) {
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedSize, setSelectedSize] = useState('Semua')
-  const [selectedColor, setSelectedColor] = useState('Semua')
   const [sortBy, setSortBy] = useState('newest') // newest, price_asc, price_desc
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false)
 
@@ -41,9 +39,7 @@ export default function CatalogClient({ initialProducts, favoritesMap, isLoggedI
     
     const matchesSize = selectedSize === 'Semua' || product.size === selectedSize
     
-    const matchesColor = selectedColor === 'Semua' || product.color === selectedColor
-
-    return matchesSearch && matchesSize && matchesColor
+    return matchesSearch && matchesSize
   })
 
   // Sorting Logic
@@ -60,6 +56,19 @@ export default function CatalogClient({ initialProducts, favoritesMap, isLoggedI
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-10 sm:pt-28 md:py-10 animate-fade-in-up">
+      {/* Back Button */}
+      <div className="mb-6 flex justify-start">
+        <a
+          href="/"
+          className="inline-flex items-center gap-2 px-4 py-2 bg-white/60 hover:bg-white text-brand-primary hover:text-brand-accent-bold border border-brand-neutral-1/10 rounded-full text-[11px] font-bold uppercase tracking-wider shadow-sm hover:shadow smooth-transition cursor-pointer group"
+        >
+          <svg className="w-3.5 h-3.5 transform group-hover:-translate-x-1 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M15 19l-7-7 7-7" />
+          </svg>
+          Kembali ke Beranda
+        </a>
+      </div>
+
       {/* Page Header */}
       <div className="mb-10 text-center md:text-left">
         <h1 className="font-serif text-3xl md:text-4xl font-bold text-brand-primary">
@@ -103,24 +112,7 @@ export default function CatalogClient({ initialProducts, favoritesMap, isLoggedI
             </div>
           </div>
 
-          <div>
-            <h3 className="font-serif text-lg font-semibold text-brand-primary mb-4">Warna</h3>
-            <div className="flex flex-col space-y-2">
-              {COLORS.map((color) => (
-                <button
-                  key={color}
-                  onClick={() => setSelectedColor(color)}
-                  className={`text-left px-3 py-2 rounded-lg text-sm font-medium smooth-transition cursor-pointer ${
-                    selectedColor === color
-                      ? 'bg-brand-accent-soft/20 text-brand-accent-bold font-semibold'
-                      : 'text-brand-primary/75 hover:bg-brand-surface hover:text-brand-primary'
-                  }`}
-                >
-                  {color}
-                </button>
-              ))}
-            </div>
-          </div>
+
         </aside>
 
         {/* Mobile Filter Toggle & Main Content */}
@@ -177,10 +169,10 @@ export default function CatalogClient({ initialProducts, favoritesMap, isLoggedI
 
             {/* Mobile Filter Drawer (Inside the same card) */}
             {mobileFiltersOpen && (
-              <div className="lg:hidden border-t border-brand-neutral-1/10 pt-4 grid grid-cols-2 gap-3.5 animate-fade-in">
+              <div className="lg:hidden border-t border-brand-neutral-1/10 pt-4 animate-fade-in">
                 {/* Ukuran Filter Select */}
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-[9px] font-bold text-brand-primary/50 uppercase tracking-widest pl-1">Ukuran</label>
+                <div className="flex flex-col gap-1.5 max-w-xs mx-auto">
+                  <label className="text-[9px] font-bold text-brand-primary/50 uppercase tracking-widest pl-1 text-center">Ukuran</label>
                   <div className="h-10 flex items-center bg-brand-surface border border-brand-neutral-1/40 px-3 rounded-full text-xs text-brand-primary">
                     <select
                       value={selectedSize}
@@ -190,24 +182,6 @@ export default function CatalogClient({ initialProducts, favoritesMap, isLoggedI
                       {SIZES.map((size) => (
                         <option key={size} value={size}>
                           {size === 'Semua' ? 'Semua Ukuran' : size}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                </div>
-
-                {/* Warna Filter Select */}
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-[9px] font-bold text-brand-primary/50 uppercase tracking-widest pl-1">Warna</label>
-                  <div className="h-10 flex items-center bg-brand-surface border border-brand-neutral-1/40 px-3 rounded-full text-xs text-brand-primary">
-                    <select
-                      value={selectedColor}
-                      onChange={(e) => setSelectedColor(e.target.value)}
-                      className="bg-transparent border-none focus:outline-none text-[11px] font-bold uppercase tracking-wider text-brand-primary cursor-pointer w-full text-center"
-                    >
-                      {COLORS.map((color) => (
-                        <option key={color} value={color}>
-                          {color === 'Semua' ? 'Semua Warna' : color}
                         </option>
                       ))}
                     </select>

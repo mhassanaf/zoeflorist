@@ -274,3 +274,41 @@ export async function uploadProductImage(formData: FormData) {
   }
 }
 
+export async function getBestSellers(limit = 4) {
+  const supabase = await createClient()
+
+  // 1. Fetch all active products
+  const products = await getProducts()
+
+  // 2. Fetch order items to count sales
+  const { data: orderItems, error: itemsError } = await supabase
+    .from('order_items')
+    .select('product_id, quantity, orders!inner(status)')
+    .neq('orders.status', 'Cancelled')
+
+  // 3. Aggregate sales
+  const salesMap: Record<string, number> = {}
+  if (!itemsError && orderItems) {
+    for (const item of orderItems) {
+      salesMap[item.product_id] = (salesMap[item.product_id] || 0) + (item.quantity || 0)
+    }
+  }
+
+  // 4. Attach sales count to products
+  const productsWithSales = products.map((p: any) => ({
+    ...p,
+    sales_count: salesMap[p.id] || 0
+  }))
+
+  // 5. Sort by sales count (descending), then average rating (descending)
+  productsWithSales.sort((a: any, b: any) => {
+    if (b.sales_count !== a.sales_count) {
+      return b.sales_count - a.sales_count
+    }
+    return b.avg_rating - a.avg_rating
+  })
+
+  // 6. Return only active products up to the limit
+  return productsWithSales.filter((p: any) => p.is_active).slice(0, limit)
+}
+

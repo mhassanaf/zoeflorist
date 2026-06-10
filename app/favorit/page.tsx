@@ -1,6 +1,7 @@
 import { getFavorites, getFavoritesMap } from '@/app/actions/favorites'
 import { createClient } from '@/utils/supabase/server'
 import { redirect } from 'next/navigation'
+import Link from 'next/link'
 import ProductCard from '@/components/ProductCard'
 
 export const dynamic = 'force-dynamic'
@@ -18,6 +19,19 @@ export default async function FavoritPage() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-12 sm:pt-28 md:py-12 animate-fade-in-up">
+      {/* Back Button */}
+      <div className="mb-6 flex justify-start">
+        <Link
+          href="/"
+          className="inline-flex items-center gap-2 px-4 py-2 bg-white/60 hover:bg-white text-brand-primary hover:text-brand-accent-bold border border-brand-neutral-1/10 rounded-full text-[11px] font-bold uppercase tracking-wider shadow-sm hover:shadow smooth-transition cursor-pointer group"
+        >
+          <svg className="w-3.5 h-3.5 transform group-hover:-translate-x-1 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M15 19l-7-7 7-7" />
+          </svg>
+          Kembali ke Beranda
+        </Link>
+      </div>
+
       {/* Page Header */}
       <div className="mb-12 text-center md:text-left">
         <span className="text-xs uppercase tracking-widest text-brand-accent-bold font-bold">Koleksi Pribadi</span>

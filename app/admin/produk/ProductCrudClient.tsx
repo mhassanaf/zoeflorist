@@ -44,7 +44,7 @@ export default function ProductCrudClient({ initialProducts }: ProductCrudClient
   const [description, setDescription] = useState('')
   const [price, setPrice] = useState(0)
   const [size, setSize] = useState<'Kecil' | 'Sedang' | 'Besar'>('Sedang')
-  const [color, setColor] = useState('Merah Muda')
+  const [color, setColor] = useState('Umum')
   const [stock, setStock] = useState(10)
   const [imageUrl, setImageUrl] = useState('/products/rose_romance.png')
   const [isActive, setIsActive] = useState(true)
@@ -59,7 +59,7 @@ export default function ProductCrudClient({ initialProducts }: ProductCrudClient
     setDescription('')
     setPrice(350000)
     setSize('Sedang')
-    setColor('Merah Muda')
+    setColor('Umum')
     setStock(10)
     setImageUrl('/products/rose_romance.png')
     setIsActive(true)
@@ -74,7 +74,7 @@ export default function ProductCrudClient({ initialProducts }: ProductCrudClient
     setDescription(p.description)
     setPrice(p.price)
     setSize(p.size)
-    setColor(p.color)
+    setColor('Umum')
     setStock(p.stock)
     setImageUrl(p.image_url)
     setIsActive(p.is_active)
@@ -121,7 +121,7 @@ export default function ProductCrudClient({ initialProducts }: ProductCrudClient
       description,
       price: Number(price),
       size,
-      color,
+      color: 'Umum',
       stock: Number(stock),
       image_url: finalImageUrl,
       is_active: isActive,
@@ -174,6 +174,19 @@ export default function ProductCrudClient({ initialProducts }: ProductCrudClient
 
   return (
     <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 animate-fade-in-up">
+      {/* Back Button */}
+      <div className="mb-6 flex justify-start">
+        <Link
+          href="/admin/dashboard"
+          className="inline-flex items-center gap-2 px-4 py-2 bg-white/60 hover:bg-white text-brand-primary hover:text-brand-accent-bold border border-brand-neutral-1/10 rounded-full text-[11px] font-bold uppercase tracking-wider shadow-sm hover:shadow smooth-transition cursor-pointer group"
+        >
+          <svg className="w-3.5 h-3.5 transform group-hover:-translate-x-1 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M15 19l-7-7 7-7" />
+          </svg>
+          Kembali ke Dashboard
+        </Link>
+      </div>
+
       {/* Admin Title & Nav */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center border-b border-brand-neutral-1/20 pb-6 mb-10 gap-4">
         <div>
@@ -244,7 +257,6 @@ export default function ProductCrudClient({ initialProducts }: ProductCrudClient
                     </td>
                     <td className="py-4 px-6">
                       <span className="text-xs font-medium px-2 py-0.5 rounded bg-brand-surface border border-brand-neutral-1/20 mr-1.5">{p.size}</span>
-                      <span className="text-xs text-brand-primary/70">{p.color}</span>
                     </td>
                     <td className="py-4 px-6 font-semibold text-brand-primary">
                       Rp {p.price.toLocaleString('id-ID')}
@@ -352,7 +364,7 @@ export default function ProductCrudClient({ initialProducts }: ProductCrudClient
                   />
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                   <div>
                     <label className="block text-xs font-semibold uppercase tracking-wider text-brand-primary">Ukuran</label>
                     <select
@@ -364,18 +376,6 @@ export default function ProductCrudClient({ initialProducts }: ProductCrudClient
                       <option value="Sedang">Sedang</option>
                       <option value="Besar">Besar</option>
                     </select>
-                  </div>
-
-                  <div>
-                    <label className="block text-xs font-semibold uppercase tracking-wider text-brand-primary">Warna Utama</label>
-                    <input
-                      type="text"
-                      required
-                      value={color}
-                      onChange={(e) => setColor(e.target.value)}
-                      className="mt-1.5 block w-full px-4 py-2.5 bg-brand-surface border border-brand-neutral-1/40 rounded-xl text-sm focus:outline-none focus:ring-1 focus:ring-brand-primary/40"
-                      placeholder="cth: Merah Muda, Putih"
-                    />
                   </div>
 
                   <div>

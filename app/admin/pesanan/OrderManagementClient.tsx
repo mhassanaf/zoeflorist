@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useTransition, useEffect } from 'react'
+import { useState, useTransition, useEffect, Fragment } from 'react'
 import { createPortal } from 'react-dom'
 import Link from 'next/link'
 import Image from 'next/image'
@@ -178,6 +178,19 @@ export default function OrderManagementClient({ initialOrders }: OrderManagement
 
   return (
     <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 animate-fade-in-up">
+      {/* Back Button */}
+      <div className="mb-6 flex justify-start">
+        <Link
+          href="/admin/dashboard"
+          className="inline-flex items-center gap-2 px-4 py-2 bg-white/60 hover:bg-white text-brand-primary hover:text-brand-accent-bold border border-brand-neutral-1/10 rounded-full text-[11px] font-bold uppercase tracking-wider shadow-sm hover:shadow smooth-transition cursor-pointer group"
+        >
+          <svg className="w-3.5 h-3.5 transform group-hover:-translate-x-1 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M15 19l-7-7 7-7" />
+          </svg>
+          Kembali ke Dashboard
+        </Link>
+      </div>
+
       {/* Admin Title & Nav */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center border-b border-brand-neutral-1/20 pb-6 mb-10 gap-4">
         <div>
@@ -203,8 +216,242 @@ export default function OrderManagementClient({ initialOrders }: OrderManagement
         </div>
       </div>
 
-      {/* Orders Table */}
-      <div className="w-full bg-white rounded-2xl border border-brand-neutral-1/10 shadow-sm overflow-hidden">
+      {/* Mobile Card List View (Visible only on mobile/tablet) */}
+      <div className="lg:hidden space-y-6 mb-6">
+        {initialOrders.length > 0 ? (
+          initialOrders.map((order) => {
+            const isExpanded = expandedOrderId === order.id
+            return (
+              <div key={order.id} className="bg-white rounded-2xl border border-brand-neutral-1/10 shadow-sm overflow-hidden flex flex-col p-5 space-y-4">
+                {/* Header info */}
+                <div className="flex justify-between items-start">
+                  <div>
+                    <span className="block text-[9px] uppercase tracking-wider text-brand-primary/50 font-bold">ID Pesanan</span>
+                    <span className="text-xs font-mono font-semibold text-brand-primary">{order.id.slice(0, 8)}...</span>
+                  </div>
+                  <span className="text-xs text-brand-primary/60">
+                    {new Date(order.created_at).toLocaleDateString('id-ID', {
+                      day: 'numeric',
+                      month: 'short',
+                      year: 'numeric',
+                    })}
+                  </span>
+                </div>
+
+                {/* Customer name */}
+                <div>
+                  <span className="block text-[9px] uppercase tracking-wider text-brand-primary/50 font-bold">Pelanggan</span>
+                  <div className="text-xs font-semibold text-brand-primary">{order.profiles?.name || 'Pelanggan'}</div>
+                  <div className="text-[10px] text-brand-primary/50">{order.profiles?.email}</div>
+                </div>
+
+                {/* Total & Status selectors */}
+                <div className="grid grid-cols-2 gap-3.5 pt-3 border-t border-brand-neutral-1/10">
+                  <div>
+                    <span className="block text-[9px] uppercase tracking-wider text-brand-primary/50 font-bold mb-1">Total Tagihan</span>
+                    <span className="font-sans font-bold text-xs text-brand-accent-bold">
+                      Rp {Number(order.total_amount).toLocaleString('id-ID')}
+                    </span>
+                  </div>
+                  <div>
+                    <span className="block text-[9px] uppercase tracking-wider text-brand-primary/50 font-bold mb-1">Status Bayar</span>
+                    <select
+                      value={order.payment_status || 'Unpaid'}
+                      disabled={isPending}
+                      onChange={(e) => handlePaymentStatusChange(order.id, e.target.value as any)}
+                      className={`w-full px-2.5 py-1.5 rounded-full text-[10px] font-bold border focus:outline-none cursor-pointer smooth-transition ${
+                        paymentStatusColors[order.payment_status || 'Unpaid'] || 'bg-zinc-100 text-zinc-800'
+                      }`}
+                    >
+                      <option value="Unpaid">Belum Bayar</option>
+                      <option value="Waiting Verification">Menunggu Verifikasi</option>
+                      <option value="Paid">Lunas</option>
+                      <option value="Rejected">Ditolak</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3.5 pt-2">
+                  <div>
+                    <span className="block text-[9px] uppercase tracking-wider text-brand-primary/50 font-bold mb-1">Status Operasi</span>
+                    <select
+                      value={order.status}
+                      disabled={isPending}
+                      onChange={(e) => handleStatusChange(order.id, e.target.value)}
+                      className={`w-full px-2.5 py-1.5 rounded-full text-[10px] font-bold border focus:outline-none cursor-pointer ${
+                        statusColors[order.status] || 'bg-zinc-100 text-zinc-805'
+                      }`}
+                    >
+                      <option value="Pending">Pending</option>
+                      <option value="Processing">Processing</option>
+                      <option value="Completed">Completed</option>
+                      <option value="Cancelled">Cancelled</option>
+                    </select>
+                  </div>
+                  <div className="flex items-end justify-end">
+                    <button
+                      onClick={() => toggleExpandOrder(order.id)}
+                      className="px-4 py-1.5 w-full bg-brand-surface border border-brand-neutral-1/30 rounded-full text-[10px] font-bold uppercase tracking-wider text-brand-primary hover:bg-brand-neutral-1/10 smooth-transition cursor-pointer text-center"
+                    >
+                      {isExpanded ? 'Tutup Detail ▲' : 'Buka Detail ▼'}
+                    </button>
+                  </div>
+                </div>
+
+                {/* Expanded Details Mobile */}
+                {isExpanded && (
+                  <div className="pt-4 border-t border-brand-neutral-1/10 space-y-4 animate-fade-in text-left">
+                    {/* Products details */}
+                    <div>
+                      <h4 className="text-[10px] uppercase font-bold tracking-wider text-brand-primary/50 mb-2">Detail Bouquet</h4>
+                      <div className="space-y-2">
+                        {order.order_items?.map((item) => (
+                          <div key={item.id} className="flex gap-2.5 items-center bg-brand-surface/20 p-2 rounded-xl border border-brand-neutral-1/10">
+                            <div className="relative w-8 h-8 bg-brand-surface rounded overflow-hidden flex-shrink-0">
+                              <Image
+                                src={item.products?.image_url || '/placeholder.png'}
+                                alt={item.products?.name || 'Bunga'}
+                                fill
+                                className="object-cover"
+                              />
+                            </div>
+                            <div className="flex-grow text-[10px] min-w-0">
+                              <div className="font-semibold text-brand-primary truncate">{item.products?.name}</div>
+                              <div className="text-brand-primary/50 text-[9px]">
+                                Ukuran: {item.products?.size}
+                              </div>
+                            </div>
+                            <div className="text-[10px] font-semibold text-brand-primary">
+                              {item.quantity}x
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Address details */}
+                    <div className="bg-brand-surface/40 p-3.5 rounded-xl border border-brand-neutral-1/10 text-[11px] text-brand-primary/80 space-y-1.5">
+                      <h4 className="text-[9px] uppercase font-bold tracking-wider text-brand-primary/50 mb-1">Info Penerima</h4>
+                      <div><span className="font-semibold">Nama:</span> {order.shipping_name}</div>
+                      <div><span className="font-semibold">HP:</span> {order.shipping_phone}</div>
+                      <div className="line-clamp-2"><span className="font-semibold">Alamat:</span> {order.shipping_address}</div>
+                      {order.shipping_courier && (
+                        <div>
+                          <span className="font-semibold">Kurir:</span>{' '}
+                          <span className="bg-brand-accent-soft/20 text-brand-accent-bold font-bold px-1 rounded text-[8px] uppercase">
+                            {order.shipping_courier}
+                          </span>
+                        </div>
+                      )}
+                      {order.shipping_fee !== undefined && order.shipping_fee > 0 && (
+                        <div><span className="font-semibold">Ongkir:</span> Rp {order.shipping_fee.toLocaleString('id-ID')}</div>
+                      )}
+                    </div>
+
+                    {/* Receipt Verification */}
+                    <div className="bg-white p-3.5 rounded-xl border border-brand-neutral-1/10 space-y-3">
+                      <h4 className="text-[9px] uppercase font-bold tracking-wider text-brand-primary/50">Verifikasi & Pesan</h4>
+                      <div className="flex items-center gap-2">
+                        {order.payment_proof_url ? (
+                          <div 
+                            onClick={() => setZoomImageUrl(order.payment_proof_url)}
+                            className="relative w-16 h-20 bg-brand-surface rounded-lg border border-brand-neutral-1/20 overflow-hidden cursor-pointer hover:opacity-95 shadow-sm smooth-transition flex-shrink-0"
+                          >
+                            <Image
+                              src={order.payment_proof_url}
+                              alt="Bukti Transfer"
+                              fill
+                              className="object-cover"
+                              unoptimized
+                            />
+                          </div>
+                        ) : (
+                          <span className="text-[10px] text-brand-primary/40 italic">Belum upload bukti</span>
+                        )}
+                        <div className="flex-grow text-[9px] text-brand-primary/60">
+                          {order.payment_status === 'Waiting Verification' ? 'Silakan cek dan verifikasi pembayaran struk transfer.' : 'Pembayaran: ' + order.payment_status}
+                        </div>
+                      </div>
+
+                      {order.payment_status === 'Waiting Verification' && (
+                        <div className="flex gap-2 pt-1">
+                          <button
+                            onClick={() => handleVerify(order.id, true)}
+                            className="flex-1 bg-green-600 hover:bg-green-700 text-white text-[9px] font-bold uppercase tracking-wider py-1.5 rounded-full smooth-transition shadow cursor-pointer"
+                          >
+                            Setuju (Lunas)
+                          </button>
+                          <button
+                            onClick={() => setIsRejecting(prev => ({ ...prev, [order.id]: true }))}
+                            className="bg-brand-accent-bold hover:bg-brand-accent-bold/90 text-white text-[9px] font-bold uppercase tracking-wider py-1.5 px-3 rounded-full smooth-transition shadow cursor-pointer"
+                          >
+                            Tolak
+                          </button>
+                        </div>
+                      )}
+
+                      {isRejecting[order.id] && (
+                        <div className="space-y-1.5 pt-1">
+                          <input
+                            type="text"
+                            placeholder="Alasan penolakan"
+                            value={rejectionReasons[order.id] || ''}
+                            onChange={(e) => setRejectionReasons(prev => ({ ...prev, [order.id]: e.target.value }))}
+                            className="w-full px-2.5 py-1.5 bg-brand-surface border border-brand-neutral-1/30 rounded-lg text-[10px] focus:outline-none"
+                          />
+                          <div className="flex gap-1.5 justify-end">
+                            <button
+                              onClick={() => handleVerify(order.id, false)}
+                              className="bg-brand-accent-bold hover:bg-brand-accent-bold/90 text-white text-[8px] font-bold uppercase py-1 px-2.5 rounded-full smooth-transition cursor-pointer"
+                            >
+                              Kirim
+                            </button>
+                            <button
+                              onClick={() => setIsRejecting(prev => ({ ...prev, [order.id]: false }))}
+                              className="bg-brand-surface text-brand-primary text-[8px] font-bold uppercase py-1 px-2.5 rounded-full smooth-transition border border-brand-neutral-1/30 cursor-pointer"
+                            >
+                              Batal
+                            </button>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Catatan / Pesan Admin */}
+                    <div className="bg-brand-surface/30 p-3.5 rounded-xl border border-brand-neutral-1/10 space-y-2">
+                      <textarea
+                        rows={1}
+                        placeholder="Kirim catatan ke pelanggan..."
+                        value={adminMessages[order.id] || ''}
+                        onChange={(e) => setAdminMessages(prev => ({ ...prev, [order.id]: e.target.value }))}
+                        className="w-full px-2.5 py-1.5 bg-white border border-brand-neutral-1/30 rounded-lg text-[10px] focus:outline-none"
+                      />
+                      <button
+                        onClick={() => handleSendMessage(order.id)}
+                        className="w-full bg-brand-primary text-white text-[9px] font-bold uppercase tracking-wider py-1.5 rounded-full smooth-transition cursor-pointer shadow hover:bg-brand-primary/95"
+                      >
+                        Kirim Pesan
+                      </button>
+                      {order.admin_message && (
+                        <div className="bg-white p-2 rounded border border-brand-neutral-1/10 text-[9px] text-brand-primary/60">
+                          Catatan: "{order.admin_message}"
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )
+          })
+        ) : (
+          <div className="text-center py-10 bg-white rounded-2xl border border-brand-neutral-1/10 text-brand-primary/45 text-xs">
+            Belum ada pesanan terdaftar.
+          </div>
+        )}
+      </div>
+
+      {/* Desktop Table View (Visible only on desktop) */}
+      <div className="hidden lg:block w-full bg-white rounded-2xl border border-brand-neutral-1/10 shadow-sm overflow-hidden">
         <div className="w-full overflow-x-auto">
           {initialOrders.length > 0 ? (
             <table className="w-full min-w-[800px] text-left border-collapse font-sans">
@@ -223,7 +470,7 @@ export default function OrderManagementClient({ initialOrders }: OrderManagement
                 {initialOrders.map((order) => {
                   const isExpanded = expandedOrderId === order.id
                   return (
-                    <tbody key={order.id} className="divide-y divide-brand-neutral-1/10">
+                    <Fragment key={order.id}>
                       {/* Main Order Row */}
                       <tr
                         onClick={() => toggleExpandOrder(order.id)}
@@ -479,7 +726,7 @@ export default function OrderManagementClient({ initialOrders }: OrderManagement
                           </td>
                         </tr>
                       )}
-                    </tbody>
+                    </Fragment>
                   )
                 })}
               </tbody>

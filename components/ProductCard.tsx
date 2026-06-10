@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useTransition, useEffect } from 'react'
+import { createPortal } from 'react-dom'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { toggleFavorite } from '@/app/actions/favorites'
@@ -33,6 +34,8 @@ export default function ProductCard({ product, initialIsFavorite, isLoggedIn }: 
   const [isPending, startTransition] = useTransition()
   const [quantityInCart, setQuantityInCart] = useState(0)
   const [localQty, setLocalQty] = useState(1)
+  const [mounted, setMounted] = useState(false)
+  const [isOpenDetail, setIsOpenDetail] = useState(false)
 
   const handleLocalIncrement = (e: React.MouseEvent) => {
     e.preventDefault()
@@ -67,6 +70,7 @@ export default function ProductCard({ product, initialIsFavorite, isLoggedIn }: 
 
   // Load cart status on mount to find existing quantity
   useEffect(() => {
+    setMounted(true)
     const checkCartQuantity = () => {
       const storedCart = localStorage.getItem('zoeflorist_cart')
       if (storedCart) {
@@ -268,63 +272,188 @@ export default function ProductCard({ product, initialIsFavorite, isLoggedIn }: 
             </span>
           </div>
 
-          {/* Add to Cart or Quantity Selector */}
-          {quantityInCart === 0 ? (
-            product.stock <= 0 ? (
-              <button
-                disabled
-                className="w-full bg-brand-surface text-brand-primary/30 border border-brand-neutral-1/30 py-1.5 sm:py-2.5 rounded-full text-[9px] sm:text-xs font-semibold uppercase tracking-wider text-center cursor-not-allowed"
-              >
-                Stok Kosong
-              </button>
-            ) : (
-              <div className="flex flex-col xl:flex-row items-stretch xl:items-center gap-1.5 xl:gap-2">
-                {/* Local Quantity Selector */}
-                <div className="flex items-center justify-between border border-brand-neutral-1/30 rounded-full bg-brand-surface p-0.5 w-full xl:w-auto">
-                  <button
-                    onClick={handleLocalDecrement}
-                    className="w-6.5 h-6.5 sm:w-8 sm:h-8 rounded-full flex items-center justify-center font-bold text-brand-primary hover:text-brand-accent-bold hover:bg-brand-neutral-1/10 smooth-transition cursor-pointer text-xs sm:text-sm"
-                  >
-                    &minus;
-                  </button>
-                  <span className="px-1.5 sm:px-2 font-sans font-bold text-xs text-brand-primary">{localQty}</span>
-                  <button
-                    onClick={handleLocalIncrement}
-                    disabled={localQty >= product.stock}
-                    className="w-6.5 h-6.5 sm:w-8 sm:h-8 rounded-full flex items-center justify-center font-bold text-brand-primary hover:text-brand-accent-bold hover:bg-brand-neutral-1/10 smooth-transition disabled:opacity-40 cursor-pointer text-xs sm:text-sm"
-                  >
-                    &#43;
-                  </button>
-                </div>
-                {/* Add Button */}
-                <button
-                  onClick={handleAddToCartClick}
-                  className="flex-grow bg-brand-primary hover:bg-brand-primary/95 text-white py-1.5 sm:py-2.5 rounded-full text-[9px] xs:text-[10px] sm:text-xs font-bold uppercase tracking-wider smooth-transition focus:outline-none cursor-pointer hover:scale-[1.02] text-center"
-                >
-                  Tambah
-                </button>
-              </div>
-            )
-          ) : (
-            <div className="flex items-center justify-between border border-brand-accent-soft text-brand-primary bg-brand-surface py-0.5 sm:py-1.5 px-2.5 sm:px-4 rounded-full smooth-transition">
-              <button
-                onClick={handleQuantityDecrement}
-                className="w-6.5 h-6.5 sm:w-8 sm:h-8 rounded-full flex items-center justify-center font-bold text-brand-primary hover:text-brand-accent-bold hover:bg-brand-neutral-1/10 smooth-transition cursor-pointer text-xs sm:text-sm"
-              >
-                &minus;
-              </button>
-              <span className="font-sans font-bold text-xs sm:text-sm text-brand-primary">{quantityInCart}</span>
-              <button
-                onClick={handleQuantityIncrement}
-                disabled={quantityInCart >= product.stock}
-                className="w-6.5 h-6.5 sm:w-8 sm:h-8 rounded-full flex items-center justify-center font-bold text-brand-primary hover:text-brand-accent-bold hover:bg-brand-neutral-1/10 smooth-transition disabled:opacity-40 cursor-pointer text-xs sm:text-sm"
-              >
-                &#43;
-              </button>
-            </div>
-          )}
+          {/* Details Modal Trigger Button */}
+          <button
+            onClick={() => setIsOpenDetail(true)}
+            className="w-full bg-brand-primary hover:bg-brand-primary/95 text-white py-2 sm:py-2.5 rounded-full text-[10px] sm:text-xs font-bold uppercase tracking-wider smooth-transition focus:outline-none cursor-pointer hover:scale-[1.02] text-center flex items-center justify-center gap-1.5 shadow-sm"
+          >
+            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+            </svg>
+            Lihat Deskripsi Lengkap
+          </button>
         </div>
       </div>
+
+      {/* Details Modal Overlay */}
+      {isOpenDetail && mounted && createPortal(
+        <>
+          {/* Backdrop */}
+          <div 
+            className="fixed inset-0 bg-brand-primary/45 backdrop-blur-md z-[9999] animate-fade-in cursor-pointer"
+            onClick={() => setIsOpenDetail(false)}
+          />
+          {/* Modal Content container */}
+          <div className="fixed inset-0 z-[10000] flex items-center justify-center p-4 pointer-events-none">
+            <div className="pointer-events-auto bg-white rounded-3xl max-w-2xl w-full p-6 sm:p-8 border border-brand-neutral-1/20 shadow-2xl overflow-y-auto max-h-[90vh] animate-fade-in-up flex flex-col relative">
+              {/* Close Button */}
+              <button
+                onClick={() => setIsOpenDetail(false)}
+                className="absolute top-4 right-4 text-brand-primary/50 hover:text-brand-accent-bold text-2xl font-bold focus:outline-none cursor-pointer z-10 w-8 h-8 flex items-center justify-center rounded-full bg-brand-surface/85 smooth-transition shadow-sm"
+              >
+                &times;
+              </button>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
+                {/* Left: Product Image */}
+                <div className="relative aspect-square w-full bg-brand-surface rounded-2xl overflow-hidden border border-brand-neutral-1/10 shadow-inner">
+                  <Image
+                    src={product.image_url || '/placeholder.png'}
+                    alt={product.name}
+                    fill
+                    sizes="(max-width: 768px) 100vw, 50vw"
+                    className="object-cover"
+                  />
+                  {/* Size Badge */}
+                  <span className="absolute bottom-3.5 left-3.5 bg-brand-primary/80 backdrop-blur text-brand-surface text-[9px] uppercase tracking-widest font-semibold px-2.5 py-0.5 rounded-full">
+                    {product.size}
+                  </span>
+                </div>
+
+                {/* Right: Info details */}
+                <div className="flex flex-col h-full justify-between space-y-4 text-left">
+                  <div>
+                    <h2 className="font-serif text-lg sm:text-xl font-bold text-brand-primary tracking-tight">
+                      {product.name}
+                    </h2>
+
+                    {/* Ratings */}
+                    <div className="flex items-center gap-1 mt-1 mb-3">
+                      <svg className="w-3.5 h-3.5 text-amber-500 fill-current" viewBox="0 0 20 20">
+                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                      </svg>
+                      {product.review_count && product.review_count > 0 ? (
+                        <div className="flex items-baseline gap-1">
+                          <span className="text-xs font-bold text-brand-primary">{product.avg_rating}</span>
+                          <span className="text-[10px] text-brand-primary/50 font-sans">({product.review_count} ulasan)</span>
+                        </div>
+                      ) : (
+                        <span className="text-[10px] text-brand-primary/45 font-sans">Belum ada ulasan</span>
+                      )}
+                    </div>
+
+                    {/* Price & Stock */}
+                    <div className="flex justify-between items-baseline bg-brand-surface/40 px-3 py-2 rounded-xl border border-brand-neutral-1/10 mb-3.5">
+                      <span className="font-serif text-base font-bold text-brand-accent-bold">
+                        Rp {product.price.toLocaleString('id-ID')}
+                      </span>
+                      <span className={`text-[10px] font-semibold ${product.stock > 0 ? 'text-green-600' : 'text-brand-accent-bold'}`}>
+                        {product.stock > 0 ? `Tersedia: ${product.stock} stok` : 'Stok Habis'}
+                      </span>
+                    </div>
+
+                    <h3 className="text-[10px] uppercase tracking-wider text-brand-primary/60 font-bold mb-1">Deskripsi Bunga</h3>
+                    <p className="text-xs text-brand-primary/80 font-sans leading-relaxed whitespace-pre-line max-h-[120px] overflow-y-auto pr-1">
+                      {product.description}
+                    </p>
+                  </div>
+
+                  {/* Add to Cart Actions */}
+                  <div className="pt-3 border-t border-brand-neutral-1/10">
+                    {quantityInCart === 0 ? (
+                      product.stock <= 0 ? (
+                        <button
+                          disabled
+                          className="w-full bg-brand-surface text-brand-primary/30 border border-brand-neutral-1/30 py-2.5 rounded-full text-xs font-semibold uppercase tracking-wider text-center cursor-not-allowed"
+                        >
+                          Stok Sedang Kosong
+                        </button>
+                      ) : (
+                        <div className="flex gap-2 items-center">
+                          {/* Local Quantity Selector */}
+                          <div className="flex items-center justify-between border border-brand-neutral-1/30 rounded-full bg-brand-surface p-0.5">
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.preventDefault()
+                                if (localQty > 1) setLocalQty(prev => prev - 1)
+                              }}
+                              className="w-8 h-8 rounded-full flex items-center justify-center font-bold text-brand-primary hover:text-brand-accent-bold hover:bg-brand-neutral-1/10 smooth-transition cursor-pointer text-sm"
+                            >
+                              &minus;
+                            </button>
+                            <span className="px-2 font-sans font-bold text-xs text-brand-primary">{localQty}</span>
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.preventDefault()
+                                if (localQty < product.stock) setLocalQty(prev => prev + 1)
+                                else showToast(`Batas stok tercapai. Tersedia: ${product.stock}`, 'error')
+                              }}
+                              className="w-8 h-8 rounded-full flex items-center justify-center font-bold text-brand-primary hover:text-brand-accent-bold hover:bg-brand-neutral-1/10 smooth-transition cursor-pointer text-sm"
+                            >
+                              &#43;
+                            </button>
+                          </div>
+                          {/* Add Button */}
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.preventDefault()
+                              if (!isLoggedIn) {
+                                router.push('/login?error=Silakan login terlebih dahulu untuk mulai berbelanja.')
+                                return
+                              }
+                              updateCartQuantity(localQty)
+                              showToast(`"${product.name}" (${localQty} item) berhasil ditambahkan ke keranjang!`, 'success')
+                            }}
+                            className="flex-grow bg-brand-primary hover:bg-brand-primary/95 text-white py-2.5 rounded-full text-xs font-bold uppercase tracking-wider smooth-transition focus:outline-none cursor-pointer hover:scale-[1.02] text-center"
+                          >
+                            Tambah ke Keranjang
+                          </button>
+                        </div>
+                      )
+                    ) : (
+                      <div className="space-y-1 text-center">
+                        <span className="block text-[9px] uppercase tracking-wider text-brand-primary/60 font-bold">Jumlah di Keranjang Belanja</span>
+                        <div className="flex items-center justify-between border border-brand-accent-soft text-brand-primary bg-brand-surface py-1 px-3 rounded-full smooth-transition max-w-[150px] mx-auto">
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.preventDefault()
+                              updateCartQuantity(quantityInCart - 1)
+                            }}
+                            className="w-8 h-8 rounded-full flex items-center justify-center font-bold text-brand-primary hover:text-brand-accent-bold hover:bg-brand-neutral-1/10 smooth-transition cursor-pointer text-xs"
+                          >
+                            &minus;
+                          </button>
+                          <span className="font-sans font-bold text-xs text-brand-primary">{quantityInCart}</span>
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.preventDefault()
+                              if (quantityInCart < product.stock) {
+                                updateCartQuantity(quantityInCart + 1)
+                              } else {
+                                showToast(`Batas stok tercapai. Tersedia: ${product.stock}`, 'error')
+                              }
+                            }}
+                            className="w-8 h-8 rounded-full flex items-center justify-center font-bold text-brand-primary hover:text-brand-accent-bold hover:bg-brand-neutral-1/10 smooth-transition cursor-pointer text-xs"
+                          >
+                            &#43;
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </>,
+        document.body
+      )}
     </div>
   )
 }

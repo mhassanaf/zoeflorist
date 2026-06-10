@@ -1,6 +1,6 @@
 import Image from 'next/image'
 import Link from 'next/link'
-import { getProducts } from '@/app/actions/products'
+import { getProducts, getBestSellers } from '@/app/actions/products'
 import { getFavoritesMap } from '@/app/actions/favorites'
 import { createClient } from '@/utils/supabase/server'
 import ProductCard from '@/components/ProductCard'
@@ -20,8 +20,8 @@ export default async function Home() {
     isLoggedIn = !!user
     
     // Fetch products (automatic seed runs inside this helper if table is empty)
-    const products = await getProducts()
-    bestSellers = products.filter(p => p.is_active).slice(0, 4)
+    await getProducts()
+    bestSellers = await getBestSellers(4)
 
     if (isLoggedIn) {
       favoritesMap = await getFavoritesMap()
@@ -128,10 +128,10 @@ export default async function Home() {
             </p>
             <div>
               <Link
-                href="/katalog?color=Kuning"
+                href="/katalog"
                 className="inline-block bg-brand-primary hover:bg-brand-primary/95 text-white text-sm font-semibold py-3 px-8 rounded-full smooth-transition shadow-sm"
               >
-                Lihat Koleksi Kuning
+                Lihat Koleksi Terbaru
               </Link>
             </div>
           </div>
