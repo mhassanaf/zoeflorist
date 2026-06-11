@@ -76,9 +76,9 @@ export default async function RootLayout({
               <div>
                 <h4 className="font-serif text-lg font-semibold mb-4 text-brand-accent-soft">Bantuan & Kontak</h4>
                 <ul className="space-y-2 text-sm text-brand-surface/80 font-sans">
-                  <li>Email: hello@zoeflorist.com</li>
-                  <li>WhatsApp: +62 812-3456-7890</li>
-                  <li>Alamat: Jl. Senopati No. 45, Jakarta Selatan</li>
+                  <li>Email: zoeflorist@gmail.com</li>
+                  <li>WhatsApp: +62 858 1711 2126</li>
+                  <li>Alamat: Jl. Cibiru Indah V No.23, Cibiru Wetan, Kec. Cileunyi, Kabupaten Bandung, Jawa Barat 40625</li>
                 </ul>
               </div>
 
