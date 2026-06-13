@@ -244,11 +244,18 @@ export default function OrderCardClient({ order: initialOrder, userReviews }: Or
             {order.order_items?.map((item: any) => `${item.products?.name || 'Produk'} (${item.quantity}x)`).join(', ')}
           </div>
           <div className="flex items-center gap-5 w-full sm:w-auto justify-between sm:justify-end">
-            <div className="text-xs sm:text-sm font-semibold text-brand-primary">
-              Total Bayar:{' '}
-              <span className="text-brand-accent-bold font-serif font-bold text-sm sm:text-base">
-                Rp {Number(order.total_amount).toLocaleString('id-ID')}
-              </span>
+            <div className="text-xs sm:text-sm font-semibold text-brand-primary flex flex-col items-end gap-0.5">
+              <div className="flex items-center gap-1.5">
+                <span>Total Bayar:</span>
+                <span className="text-brand-accent-bold font-serif font-bold text-sm sm:text-base">
+                  Rp {Number(order.total_amount).toLocaleString('id-ID')}
+                </span>
+              </div>
+              {order.shipping_courier === 'Pending' && (
+                <span className="text-[9px] text-brand-primary/50 italic font-normal font-sans">
+                  (Belum Termasuk Ongkir)
+                </span>
+              )}
             </div>
             <button
               type="button"
@@ -326,31 +333,34 @@ export default function OrderCardClient({ order: initialOrder, userReviews }: Or
               )}
             </div>
             <div className="w-full md:w-auto flex flex-col items-end gap-1.5 border-t md:border-t-0 border-brand-neutral-1/10 pt-4 md:pt-0">
-              {order.shipping_courier === 'Pending' ? (
-                <div className="text-xs text-brand-primary/60 italic text-right w-full">
-                  Menunggu penetapan ongkos kirim oleh Admin
-                </div>
-              ) : (
-                <>
-                  <div className="flex justify-between md:justify-end w-full md:w-auto gap-10 text-xs text-brand-primary/60">
-                    <span>Subtotal Buket:</span>
-                    <span>Rp {(Number(order.total_amount) - Number(order.shipping_fee || 0)).toLocaleString('id-ID')}</span>
-                  </div>
-                  <div className="flex justify-between md:justify-end w-full md:w-auto gap-10 text-xs text-brand-primary/60">
-                    <span>Ongkos Kirim:</span>
-                    <span>
-                      {Number(order.shipping_fee) > 0 
-                        ? `Rp ${Number(order.shipping_fee).toLocaleString('id-ID')}` 
-                        : 'Rp 0 (Ambil di Toko)'}
-                    </span>
-                  </div>
-                </>
-              )}
-              <div className="flex justify-between md:justify-end w-full md:w-auto gap-10 items-baseline font-serif text-sm font-bold text-brand-primary">
+              <div className="flex justify-between md:justify-end w-full md:w-auto gap-10 text-xs text-brand-primary/60">
+                <span>Subtotal Buket:</span>
+                <span>Rp {Number(order.shipping_courier === 'Pending' ? order.total_amount : (Number(order.total_amount) - Number(order.shipping_fee || 0))).toLocaleString('id-ID')}</span>
+              </div>
+              <div className="flex justify-between md:justify-end w-full md:w-auto gap-10 text-xs text-brand-primary/60">
+                <span>Ongkos Kirim:</span>
+                {order.shipping_courier === 'Pending' ? (
+                  <span className="text-brand-accent-bold italic font-medium font-sans">Menunggu Penetapan Admin</span>
+                ) : (
+                  <span>
+                    {Number(order.shipping_fee) > 0 
+                      ? `Rp ${Number(order.shipping_fee).toLocaleString('id-ID')}` 
+                      : 'Rp 0 (Ambil di Toko)'}
+                  </span>
+                )}
+              </div>
+              <div className="flex justify-between md:justify-end w-full md:w-auto gap-10 items-baseline font-serif text-sm font-bold text-brand-primary border-t border-brand-neutral-1/10 pt-1.5 mt-1">
                 <span>Total Bayar:</span>
-                <span className="text-lg text-brand-accent-bold">
-                  Rp {Number(order.total_amount).toLocaleString('id-ID')}
-                </span>
+                <div className="text-right">
+                  <span className="text-lg text-brand-accent-bold block">
+                    Rp {Number(order.total_amount).toLocaleString('id-ID')}
+                  </span>
+                  {order.shipping_courier === 'Pending' && (
+                    <span className="text-[9px] text-brand-primary/50 italic font-normal font-sans block mt-0.5">
+                      (Belum Termasuk Ongkir)
+                    </span>
+                  )}
+                </div>
               </div>
             </div>
           </div>
