@@ -248,7 +248,7 @@ export default function OrderCardClient({ order: initialOrder, userReviews }: Or
               <div className="flex items-center gap-1.5">
                 <span>Total Bayar:</span>
                 {order.shipping_courier === 'Pending' ? (
-                  <span className="text-brand-accent-bold italic font-medium font-sans">
+                  <span className="text-brand-accent-bold font-serif font-bold text-sm sm:text-base italic">
                     Menunggu Ongkir
                   </span>
                 ) : (
@@ -354,11 +354,11 @@ export default function OrderCardClient({ order: initialOrder, userReviews }: Or
                 <span>Total Bayar:</span>
                 <div className="text-right">
                   {order.shipping_courier === 'Pending' ? (
-                    <span className="text-brand-accent-bold italic font-medium font-sans">
+                    <span className="text-lg text-brand-accent-bold font-serif font-bold italic block">
                       Menunggu Ongkir
                     </span>
                   ) : (
-                    <span className="text-lg text-brand-accent-bold block">
+                    <span className="text-lg text-brand-accent-bold font-serif font-bold block">
                       Rp {Number(order.total_amount).toLocaleString('id-ID')}
                     </span>
                   )}
