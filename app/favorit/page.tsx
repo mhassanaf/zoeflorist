@@ -66,12 +66,12 @@ export default async function FavoritPage() {
             Jelajahi katalog kami dan ketuk ikon hati pada produk bunga yang Anda sukai untuk menyimpannya di sini.
           </p>
           <div className="mt-6">
-            <a
+            <Link
               href="/katalog"
               className="inline-block bg-brand-primary hover:bg-brand-primary/95 text-white text-sm font-semibold py-3 px-8 rounded-full smooth-transition shadow-sm"
             >
               Jelajahi Katalog Bunga
-            </a>
+            </Link>
           </div>
         </div>
       )}

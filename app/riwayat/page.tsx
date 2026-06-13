@@ -77,12 +77,12 @@ export default async function RiwayatPage() {
             Anda belum pernah memesan buket bunga premium kami sebelumnya. Mulai temukan rangkaian bunga favorit Anda!
           </p>
           <div className="mt-6">
-            <a
+            <Link
               href="/katalog"
               className="inline-block bg-brand-primary hover:bg-brand-primary/95 text-white text-sm font-semibold py-3 px-8 rounded-full smooth-transition"
             >
               Belanja Sekarang
-            </a>
+            </Link>
           </div>
         </div>
       )}

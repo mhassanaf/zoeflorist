@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import { signIn } from '@/app/actions/auth'
 import { createClient } from '@/utils/supabase/client'
 
@@ -121,9 +122,9 @@ export default function AdminLoginPage() {
         </form>
 
         <div className="text-center">
-          <a href="/" className="text-xs text-brand-surface/60 hover:text-brand-surface smooth-transition">
+          <Link href="/" className="text-xs text-brand-surface/60 hover:text-brand-surface smooth-transition">
             &larr; Kembali ke Beranda Toko
-          </a>
+          </Link>
         </div>
       </div>
     </div>
