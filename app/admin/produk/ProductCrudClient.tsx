@@ -27,7 +27,7 @@ interface ProductCrudClientProps {
 
 export default function ProductCrudClient({ initialProducts }: ProductCrudClientProps) {
   const router = useRouter()
-  const { showToast } = useToast()
+  const { showToast, dismissToast } = useToast()
   const [isPending, startTransition] = useTransition()
   const [products, setProducts] = useState<Product[]>(initialProducts)
 
@@ -140,6 +140,7 @@ export default function ProductCrudClient({ initialProducts }: ProductCrudClient
       formData.append('file', imageFile)
       const uploadRes = await uploadProductImage(formData)
       if (uploadRes.error) {
+        dismissToast(loadingToastId)
         showToast(`Gagal mengunggah gambar: ${uploadRes.error}`, 'error')
         return
       }
@@ -167,6 +168,7 @@ export default function ProductCrudClient({ initialProducts }: ProductCrudClient
         res = await createProduct(productPayload)
       }
 
+      dismissToast(loadingToastId)
       if (res.error) {
         showToast(res.error, 'error')
       } else {
@@ -187,6 +189,7 @@ export default function ProductCrudClient({ initialProducts }: ProductCrudClient
 
     startTransition(async () => {
       const res = await deleteProduct(id)
+      dismissToast(loadingToastId)
       if (res.error) {
         showToast(`Gagal menghapus: ${res.error}`, 'error')
       } else {

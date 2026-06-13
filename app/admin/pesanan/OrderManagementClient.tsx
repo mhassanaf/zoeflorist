@@ -61,7 +61,7 @@ const paymentStatusColors: Record<string, string> = {
 
 export default function OrderManagementClient({ initialOrders }: OrderManagementClientProps) {
   const router = useRouter()
-  const { showToast } = useToast()
+  const { showToast, dismissToast } = useToast()
   const [isPending, startTransition] = useTransition()
   const [orders, setOrders] = useState<Order[]>(initialOrders)
   const [expandedOrderId, setExpandedOrderId] = useState<string | null>(null)
@@ -177,6 +177,7 @@ export default function OrderManagementClient({ initialOrders }: OrderManagement
     const loadingToastId = showToast('Menentukan ongkos kirim...', 'loading')
     startTransition(async () => {
       const res = await updateOrderShippingFee(orderId, shippingFee)
+      dismissToast(loadingToastId)
       if (res.error) {
         showToast(`Gagal menentukan ongkir: ${res.error}`, 'error')
       } else {
@@ -190,6 +191,7 @@ export default function OrderManagementClient({ initialOrders }: OrderManagement
 
     startTransition(async () => {
       const res = await updateOrderStatus(orderId, newStatus)
+      dismissToast(loadingToastId)
       if (res.error) {
         showToast(`Gagal mengubah status: ${res.error}`, 'error')
       } else {
@@ -229,6 +231,7 @@ export default function OrderManagementClient({ initialOrders }: OrderManagement
 
     startTransition(async () => {
       const res = await updatePaymentStatus(orderId, newPaymentStatus)
+      dismissToast(loadingToastId)
       if (res.error) {
         showToast(`Gagal mengubah status pembayaran: ${res.error}`, 'error')
       } else {
@@ -277,6 +280,7 @@ export default function OrderManagementClient({ initialOrders }: OrderManagement
       const loadingToastId = showToast('Menyetujui pembayaran...', 'loading')
       startTransition(async () => {
         const res = await verifyPayment(orderId, true, adminMsg)
+        dismissToast(loadingToastId)
         if (res.error) {
           showToast(`Gagal memverifikasi: ${res.error}`, 'error')
         } else {
@@ -287,6 +291,7 @@ export default function OrderManagementClient({ initialOrders }: OrderManagement
       const loadingToastId = showToast('Menolak pembayaran...', 'loading')
       startTransition(async () => {
         const res = await verifyPayment(orderId, false, value.trim())
+        dismissToast(loadingToastId)
         if (res.error) {
           showToast(`Gagal menolak: ${res.error}`, 'error')
         } else {
@@ -298,6 +303,7 @@ export default function OrderManagementClient({ initialOrders }: OrderManagement
       const loadingToastId = showToast('Mengubah status pembayaran...', 'loading')
       startTransition(async () => {
         const res = await updatePaymentStatus(orderId, 'Paid', adminMsg)
+        dismissToast(loadingToastId)
         if (res.error) {
           showToast(`Gagal mengubah status pembayaran: ${res.error}`, 'error')
         } else {
@@ -308,6 +314,7 @@ export default function OrderManagementClient({ initialOrders }: OrderManagement
       const loadingToastId = showToast('Mengubah status pembayaran...', 'loading')
       startTransition(async () => {
         const res = await updatePaymentStatus(orderId, 'Rejected', value.trim() || undefined)
+        dismissToast(loadingToastId)
         if (res.error) {
           showToast(`Gagal mengubah status pembayaran: ${res.error}`, 'error')
         } else {
@@ -328,6 +335,7 @@ export default function OrderManagementClient({ initialOrders }: OrderManagement
 
     startTransition(async () => {
       const res = await sendAdminMessage(orderId, message)
+      dismissToast(loadingToastId)
       if (res.error) {
         showToast(`Gagal mengirim pesan: ${res.error}`, 'error')
       } else {

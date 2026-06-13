@@ -168,6 +168,7 @@ export default function OrderCardClient({ order: initialOrder, userReviews }: Or
 
     startTransition(async () => {
       const res = await submitPaymentProof(order.id, formData)
+      dismissToast(loadingToastId)
       if (res.error) {
         showToast(`Gagal mengunggah bukti: ${res.error}`, 'error')
       } else {
@@ -439,7 +440,7 @@ export default function OrderCardClient({ order: initialOrder, userReviews }: Or
                         type="button"
                         disabled={isPending}
                         onClick={() => handleToggleDelivery('Kirim')}
-                        className={`flex-1 sm:flex-initial px-5 py-2 rounded-full text-xs font-bold uppercase tracking-wider smooth-transition cursor-pointer ${
+                        className={`flex-1 sm:flex-initial px-5 py-2 rounded-full text-xs font-bold uppercase tracking-wider smooth-transition hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 cursor-pointer ${
                           order.shipping_courier?.startsWith('Kirim:')
                             ? 'bg-brand-accent-bold text-white shadow-sm'
                             : 'bg-brand-surface hover:bg-brand-neutral-1/10 border border-brand-neutral-1/30 text-brand-primary'
@@ -451,7 +452,7 @@ export default function OrderCardClient({ order: initialOrder, userReviews }: Or
                         type="button"
                         disabled={isPending}
                         onClick={() => handleToggleDelivery('Pickup')}
-                        className={`flex-1 sm:flex-initial px-5 py-2 rounded-full text-xs font-bold uppercase tracking-wider smooth-transition cursor-pointer ${
+                        className={`flex-1 sm:flex-initial px-5 py-2 rounded-full text-xs font-bold uppercase tracking-wider smooth-transition hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 cursor-pointer ${
                           order.shipping_courier?.startsWith('Pickup:')
                             ? 'bg-brand-accent-bold text-white shadow-sm'
                             : 'bg-brand-surface hover:bg-brand-neutral-1/10 border border-brand-neutral-1/30 text-brand-primary'
@@ -493,7 +494,7 @@ export default function OrderCardClient({ order: initialOrder, userReviews }: Or
                           
                           {/* Method BCA */}
                           {order.payment_method === 'Bank Transfer' && (
-                            <div className="space-y-3 font-sans">
+                            <div className="space-y-3 font-sans animate-fade-in">
                               <div className="flex items-center gap-3 bg-brand-surface/40 p-3 rounded-xl border border-brand-neutral-1/10">
                                 <div className="w-12 h-6 relative bg-white border border-brand-neutral-1/25 rounded flex items-center justify-center font-bold text-blue-800 text-[10px] tracking-wide select-none">
                                   BCA
@@ -505,7 +506,7 @@ export default function OrderCardClient({ order: initialOrder, userReviews }: Or
                                 <button
                                   type="button"
                                   onClick={() => handleCopy('1672806768')}
-                                  className="text-[10px] uppercase font-bold tracking-wider text-brand-accent-bold hover:underline cursor-pointer focus:outline-none"
+                                  className="text-[10px] uppercase font-bold tracking-wider text-brand-accent-bold hover:underline cursor-pointer focus:outline-none hover:scale-105 active:scale-95 smooth-transition"
                                 >
                                   {copiedText ? 'Disalin!' : 'Salin Rek'}
                                 </button>
@@ -518,7 +519,7 @@ export default function OrderCardClient({ order: initialOrder, userReviews }: Or
 
                           {/* Method E-Wallet */}
                           {order.payment_method === 'E-wallet' && (
-                            <div className="space-y-3 font-sans">
+                            <div className="space-y-3 font-sans animate-fade-in">
                               <div className="flex items-center gap-3 bg-brand-surface/40 p-3 rounded-xl border border-brand-neutral-1/10">
                                 <div className="w-12 h-6 relative bg-white border border-brand-neutral-1/25 rounded flex items-center justify-center font-bold text-green-700 text-[9px] uppercase tracking-tight select-none">
                                   DANA/GOPAY
@@ -530,7 +531,7 @@ export default function OrderCardClient({ order: initialOrder, userReviews }: Or
                                 <button
                                   type="button"
                                   onClick={() => handleCopy('085817112126')}
-                                  className="text-[10px] uppercase font-bold tracking-wider text-brand-accent-bold hover:underline cursor-pointer focus:outline-none"
+                                  className="text-[10px] uppercase font-bold tracking-wider text-brand-accent-bold hover:underline cursor-pointer focus:outline-none hover:scale-105 active:scale-95 smooth-transition"
                                 >
                                   {copiedText ? 'Disalin!' : 'Salin No'}
                                 </button>
@@ -543,7 +544,7 @@ export default function OrderCardClient({ order: initialOrder, userReviews }: Or
 
                           {/* Method QRIS */}
                           {order.payment_method === 'QRIS' && (
-                            <div className="space-y-3 flex flex-col items-center">
+                            <div className="space-y-3 flex flex-col items-center animate-fade-in">
                               <div className="relative sm:w-44 sm:h-56 w-36 h-48 bg-white border border-brand-neutral-1/20 p-2 rounded-xl shadow-md transition-all duration-300">
                                 <Image
                                   src="/qris.png"
@@ -562,12 +563,12 @@ export default function OrderCardClient({ order: initialOrder, userReviews }: Or
                     </div>
 
                     {/* Right: Upload Form */}
-                    <form onSubmit={handleUploadSubmit} className="flex flex-col justify-between gap-4 h-auto md:h-[450px] transition-all duration-500 ease-in-out">
+                    <form onSubmit={handleUploadSubmit} className="bg-white p-5 rounded-2xl border border-brand-neutral-1/15 shadow-inner flex flex-col justify-between gap-4 h-auto md:h-[450px] transition-all duration-500 ease-in-out">
                       <div className="flex flex-col flex-grow gap-2.5">
                         <span className="text-[10px] uppercase tracking-wider text-brand-primary/55 font-bold block">Unggah Bukti Transfer:</span>
                         
                         {!previewUrl ? (
-                          <div className="relative border border-dashed border-brand-neutral-1/80 rounded-2xl p-6 bg-white hover:bg-brand-surface smooth-transition flex flex-col items-center justify-center cursor-pointer flex-grow min-h-[220px]">
+                          <div className="relative border border-dashed border-brand-neutral-1/80 rounded-xl p-5 bg-brand-surface/30 hover:bg-brand-surface/60 smooth-transition flex flex-col items-center justify-center cursor-pointer flex-grow min-h-[200px] hover:scale-[1.01]">
                             <input
                               type="file"
                               accept="image/*"
@@ -582,7 +583,7 @@ export default function OrderCardClient({ order: initialOrder, userReviews }: Or
                             <span className="text-[9px] text-brand-primary/40 text-center mt-1">Format gambar .png, .jpg (Maksimal 5MB)</span>
                           </div>
                         ) : (
-                          <div className="relative border border-brand-neutral-1/10 rounded-2xl p-4 bg-white flex flex-col items-center justify-center gap-4 shadow-sm flex-grow min-h-[220px]">
+                          <div className="relative border border-dashed border-brand-neutral-1/30 rounded-xl p-4 bg-brand-surface/10 flex flex-col items-center justify-center gap-4 flex-grow min-h-[200px] animate-fade-in">
                             <div className="relative w-28 h-36 bg-brand-surface rounded-xl border border-brand-neutral-1/25 overflow-hidden shadow-sm flex-shrink-0">
                               <Image
                                 src={previewUrl}
@@ -597,7 +598,7 @@ export default function OrderCardClient({ order: initialOrder, userReviews }: Or
                               <button
                                 type="button"
                                 onClick={handleClearFile}
-                                className="p-1.5 rounded-full hover:bg-brand-surface text-brand-primary/50 hover:text-brand-accent-bold smooth-transition cursor-pointer"
+                                className="p-1.5 rounded-full hover:bg-brand-surface text-brand-primary/50 hover:text-brand-accent-bold smooth-transition cursor-pointer hover:scale-105 active:scale-95"
                               >
                                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M6 18L18 6M6 6l12 12" />
@@ -611,7 +612,7 @@ export default function OrderCardClient({ order: initialOrder, userReviews }: Or
                       <button
                         type="submit"
                         disabled={isPending || !imageFile}
-                        className="w-full bg-brand-primary text-white text-xs font-bold uppercase tracking-wider py-3.5 rounded-full shadow hover:bg-brand-primary/95 disabled:opacity-50 smooth-transition cursor-pointer mt-auto"
+                        className="w-full bg-brand-primary text-white text-xs font-bold uppercase tracking-wider py-3.5 rounded-full shadow hover:bg-brand-primary/95 disabled:opacity-50 smooth-transition cursor-pointer mt-auto hover:scale-[1.02] active:scale-[0.98]"
                       >
                         {isPending ? 'Mengirim Bukti...' : 'Kirim Bukti Pembayaran'}
                       </button>
