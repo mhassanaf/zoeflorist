@@ -247,15 +247,16 @@ export default function OrderCardClient({ order: initialOrder, userReviews }: Or
             <div className="text-xs sm:text-sm font-semibold text-brand-primary flex flex-col items-end gap-0.5">
               <div className="flex items-center gap-1.5">
                 <span>Total Bayar:</span>
-                <span className="text-brand-accent-bold font-serif font-bold text-sm sm:text-base">
-                  Rp {Number(order.total_amount).toLocaleString('id-ID')}
-                </span>
+                {order.shipping_courier === 'Pending' ? (
+                  <span className="text-brand-accent-bold italic font-medium font-sans">
+                    Menunggu Ongkir
+                  </span>
+                ) : (
+                  <span className="text-brand-accent-bold font-serif font-bold text-sm sm:text-base">
+                    Rp {Number(order.total_amount).toLocaleString('id-ID')}
+                  </span>
+                )}
               </div>
-              {order.shipping_courier === 'Pending' && (
-                <span className="text-[9px] text-brand-primary/50 italic font-normal font-sans">
-                  (Belum Termasuk Ongkir)
-                </span>
-              )}
             </div>
             <button
               type="button"
@@ -352,12 +353,13 @@ export default function OrderCardClient({ order: initialOrder, userReviews }: Or
               <div className="flex justify-between md:justify-end w-full md:w-auto gap-10 items-baseline font-serif text-sm font-bold text-brand-primary border-t border-brand-neutral-1/10 pt-1.5 mt-1">
                 <span>Total Bayar:</span>
                 <div className="text-right">
-                  <span className="text-lg text-brand-accent-bold block">
-                    Rp {Number(order.total_amount).toLocaleString('id-ID')}
-                  </span>
-                  {order.shipping_courier === 'Pending' && (
-                    <span className="text-[9px] text-brand-primary/50 italic font-normal font-sans block mt-0.5">
-                      (Belum Termasuk Ongkir)
+                  {order.shipping_courier === 'Pending' ? (
+                    <span className="text-brand-accent-bold italic font-medium font-sans">
+                      Menunggu Ongkir
+                    </span>
+                  ) : (
+                    <span className="text-lg text-brand-accent-bold block">
+                      Rp {Number(order.total_amount).toLocaleString('id-ID')}
                     </span>
                   )}
                 </div>
