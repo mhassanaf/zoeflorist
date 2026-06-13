@@ -438,140 +438,144 @@ export default function OrderCardClient({ order: initialOrder, userReviews }: Or
                 )}
 
                 {!order.payment_status || order.payment_status === 'Unpaid' || order.payment_status === 'Rejected' ? (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start animate-fade-in">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-stretch animate-fade-in text-left">
                     {/* Left: Payment Info */}
-                    <div className="bg-white p-5 rounded-2xl border border-brand-neutral-1/15 space-y-4 shadow-inner">
-                      <div>
-                        <span className="text-[10px] uppercase tracking-wider text-brand-primary/55 font-bold block">Nominal Harus Dibayar:</span>
-                        <span className="text-xl font-mono font-bold text-brand-accent-bold">
-                          Rp {Number(order.total_amount).toLocaleString('id-ID')}
-                        </span>
-                        <span className="block text-[9px] text-brand-primary/40 font-semibold mt-1">
-                          *Pastikan nominal transfer sama persis hingga digit terakhir.
-                        </span>
-                      </div>
+                    <div className="bg-white p-5 rounded-2xl border border-brand-neutral-1/15 shadow-inner flex flex-col justify-between h-auto md:h-[450px] transition-all duration-500 ease-in-out">
+                      <div className="space-y-4">
+                        <div>
+                          <span className="text-[10px] uppercase tracking-wider text-brand-primary/55 font-bold block">Nominal Harus Dibayar:</span>
+                          <span className="text-xl font-mono font-bold text-brand-accent-bold">
+                            Rp {Number(order.total_amount).toLocaleString('id-ID')}
+                          </span>
+                          <span className="block text-[9px] text-brand-primary/40 font-semibold mt-1">
+                            *Pastikan nominal transfer sama persis hingga digit terakhir.
+                          </span>
+                        </div>
 
-                      <div className="border-t border-brand-neutral-1/10 pt-4">
-                        <span className="text-[10px] uppercase tracking-wider text-brand-primary/55 font-bold block mb-2">Instruksi Pembayaran:</span>
-                        
-                        {/* Method BCA */}
-                        {order.payment_method === 'Bank Transfer' && (
-                          <div className="space-y-3 font-sans">
-                            <div className="flex items-center gap-3 bg-brand-surface/40 p-3 rounded-xl border border-brand-neutral-1/10">
-                              <div className="w-12 h-6 relative bg-white border border-brand-neutral-1/25 rounded flex items-center justify-center font-bold text-blue-800 text-[10px] tracking-wide select-none">
-                                BCA
+                        <div className="border-t border-brand-neutral-1/10 pt-4">
+                          <span className="text-[10px] uppercase tracking-wider text-brand-primary/55 font-bold block mb-2">Instruksi Pembayaran:</span>
+                          
+                          {/* Method BCA */}
+                          {order.payment_method === 'Bank Transfer' && (
+                            <div className="space-y-3 font-sans">
+                              <div className="flex items-center gap-3 bg-brand-surface/40 p-3 rounded-xl border border-brand-neutral-1/10">
+                                <div className="w-12 h-6 relative bg-white border border-brand-neutral-1/25 rounded flex items-center justify-center font-bold text-blue-800 text-[10px] tracking-wide select-none">
+                                  BCA
+                                </div>
+                                <div className="flex-grow">
+                                  <span className="block text-xs font-semibold text-brand-primary font-mono">1672806768</span>
+                                  <span className="block text-[10px] text-brand-primary/60">a/n zoeflorist</span>
+                                </div>
+                                <button
+                                  type="button"
+                                  onClick={() => handleCopy('1672806768')}
+                                  className="text-[10px] uppercase font-bold tracking-wider text-brand-accent-bold hover:underline cursor-pointer focus:outline-none"
+                                >
+                                  {copiedText ? 'Disalin!' : 'Salin Rek'}
+                                </button>
                               </div>
-                              <div className="flex-grow">
-                                <span className="block text-xs font-semibold text-brand-primary font-mono">1672806768</span>
-                                <span className="block text-[10px] text-brand-primary/60">a/n zoeflorist</span>
-                              </div>
-                              <button
-                                type="button"
-                                onClick={() => handleCopy('1672806768')}
-                                className="text-[10px] uppercase font-bold tracking-wider text-brand-accent-bold hover:underline cursor-pointer focus:outline-none"
-                              >
-                                {copiedText ? 'Disalin!' : 'Salin Rek'}
-                              </button>
+                              <p className="text-[10px] text-brand-primary/70 leading-relaxed">
+                                Silakan lakukan transfer antar bank ke rekening Bank BCA di atas, lalu unggah bukti transfer di form sebelah kanan.
+                              </p>
                             </div>
-                            <p className="text-[10px] text-brand-primary/70 leading-relaxed">
-                              Silakan lakukan transfer antar bank ke rekening Bank BCA di atas, lalu unggah bukti transfer di form sebelah kanan.
-                            </p>
-                          </div>
-                        )}
+                          )}
 
-                        {/* Method E-Wallet */}
-                        {order.payment_method === 'E-wallet' && (
-                          <div className="space-y-3 font-sans">
-                            <div className="flex items-center gap-3 bg-brand-surface/40 p-3 rounded-xl border border-brand-neutral-1/10">
-                              <div className="w-12 h-6 relative bg-white border border-brand-neutral-1/25 rounded flex items-center justify-center font-bold text-green-700 text-[9px] uppercase tracking-tight select-none">
-                                DANA/GOPAY
+                          {/* Method E-Wallet */}
+                          {order.payment_method === 'E-wallet' && (
+                            <div className="space-y-3 font-sans">
+                              <div className="flex items-center gap-3 bg-brand-surface/40 p-3 rounded-xl border border-brand-neutral-1/10">
+                                <div className="w-12 h-6 relative bg-white border border-brand-neutral-1/25 rounded flex items-center justify-center font-bold text-green-700 text-[9px] uppercase tracking-tight select-none">
+                                  DANA/GOPAY
+                                </div>
+                                <div className="flex-grow">
+                                  <span className="block text-xs font-semibold text-brand-primary font-mono">085817112126</span>
+                                  <span className="block text-[10px] text-brand-primary/60">a/n zoeflorist</span>
+                                </div>
+                                <button
+                                  type="button"
+                                  onClick={() => handleCopy('085817112126')}
+                                  className="text-[10px] uppercase font-bold tracking-wider text-brand-accent-bold hover:underline cursor-pointer focus:outline-none"
+                                >
+                                  {copiedText ? 'Disalin!' : 'Salin No'}
+                                </button>
                               </div>
-                              <div className="flex-grow">
-                                <span className="block text-xs font-semibold text-brand-primary font-mono">085817112126</span>
-                                <span className="block text-[10px] text-brand-primary/60">a/n zoeflorist</span>
-                              </div>
-                              <button
-                                type="button"
-                                onClick={() => handleCopy('085817112126')}
-                                className="text-[10px] uppercase font-bold tracking-wider text-brand-accent-bold hover:underline cursor-pointer focus:outline-none"
-                              >
-                                {copiedText ? 'Disalin!' : 'Salin No'}
-                              </button>
+                              <p className="text-[10px] text-brand-primary/70 leading-relaxed">
+                                Silakan lakukan transfer saldo e-wallet Dana atau GoPay Anda ke nomor di atas, kemudian unggah struk transaksinya.
+                              </p>
                             </div>
-                            <p className="text-[10px] text-brand-primary/70 leading-relaxed">
-                              Silakan lakukan transfer saldo e-wallet Dana atau GoPay Anda ke nomor di atas, kemudian unggah struk transaksinya.
-                            </p>
-                          </div>
-                        )}
+                          )}
 
-                        {/* Method QRIS */}
-                        {order.payment_method === 'QRIS' && (
-                          <div className="space-y-3 flex flex-col items-center">
-                            <div className="relative sm:w-64 sm:h-80 w-48 h-60 bg-white border border-brand-neutral-1/20 p-2 rounded-xl shadow-md">
-                              <Image
-                                src="/qris.png"
-                                alt="QRIS zoeflorist"
-                                fill
-                                className="object-contain p-1"
-                              />
+                          {/* Method QRIS */}
+                          {order.payment_method === 'QRIS' && (
+                            <div className="space-y-3 flex flex-col items-center">
+                              <div className="relative sm:w-44 sm:h-56 w-36 h-48 bg-white border border-brand-neutral-1/20 p-2 rounded-xl shadow-md transition-all duration-300">
+                                <Image
+                                  src="/qris.png"
+                                  alt="QRIS zoeflorist"
+                                  fill
+                                  className="object-contain p-1"
+                                />
+                              </div>
+                              <p className="text-[10px] text-brand-primary/70 leading-relaxed text-center font-sans">
+                                Pindai kode QRIS di atas dengan aplikasi bank atau e-wallet pilihan Anda.
+                              </p>
                             </div>
-                            <p className="text-[10px] text-brand-primary/70 leading-relaxed text-center font-sans">
-                              Pindai kode QRIS di atas dengan aplikasi bank atau e-wallet pilihan Anda (Dana, GoPay, OVO, ShopeePay, LinkAja).
-                            </p>
-                          </div>
-                        )}
+                          )}
+                        </div>
                       </div>
                     </div>
 
                     {/* Right: Upload Form */}
-                    <form onSubmit={handleUploadSubmit} className="space-y-4">
-                      <span className="text-[10px] uppercase tracking-wider text-brand-primary/55 font-bold block">Unggah Bukti Transfer:</span>
-                      
-                      {!previewUrl ? (
-                        <div className="relative border border-dashed border-brand-neutral-1/80 rounded-2xl p-6 bg-white hover:bg-brand-surface smooth-transition flex flex-col items-center justify-center cursor-pointer min-h-[140px]">
-                          <input
-                            type="file"
-                            accept="image/*"
-                            required
-                            onChange={handleFileChange}
-                            className="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
-                          />
-                          <svg className="w-10 h-10 text-brand-primary/40 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                          </svg>
-                          <span className="text-xs font-semibold text-brand-primary/70 text-center">Pilih Gambar Struk/Bukti Transfer</span>
-                          <span className="text-[9px] text-brand-primary/40 text-center mt-1">Format gambar .png, .jpg (Maksimal 5MB)</span>
-                        </div>
-                      ) : (
-                        <div className="relative border border-brand-neutral-1/10 rounded-2xl p-4 bg-white flex items-center gap-4 shadow-sm">
-                          <div className="relative w-16 h-16 bg-brand-surface rounded-lg overflow-hidden flex-shrink-0">
-                            <Image
-                              src={previewUrl}
-                              alt="Pratinjau Bukti"
-                              fill
-                              className="object-cover"
+                    <form onSubmit={handleUploadSubmit} className="flex flex-col justify-between gap-4 h-auto md:h-[450px] transition-all duration-500 ease-in-out">
+                      <div className="flex flex-col flex-grow gap-2.5">
+                        <span className="text-[10px] uppercase tracking-wider text-brand-primary/55 font-bold block">Unggah Bukti Transfer:</span>
+                        
+                        {!previewUrl ? (
+                          <div className="relative border border-dashed border-brand-neutral-1/80 rounded-2xl p-6 bg-white hover:bg-brand-surface smooth-transition flex flex-col items-center justify-center cursor-pointer flex-grow min-h-[220px]">
+                            <input
+                              type="file"
+                              accept="image/*"
+                              required
+                              onChange={handleFileChange}
+                              className="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
                             />
-                          </div>
-                          <div className="flex-grow min-w-0">
-                            <span className="block text-xs font-semibold text-brand-primary truncate">{imageFile?.name}</span>
-                            <span className="block text-[10px] text-brand-primary/45">{(imageFile!.size / 1024 / 1024).toFixed(2)} MB</span>
-                          </div>
-                          <button
-                            type="button"
-                            onClick={handleClearFile}
-                            className="p-1.5 rounded-full hover:bg-brand-surface text-brand-primary/50 hover:text-brand-accent-bold smooth-transition cursor-pointer"
-                          >
-                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M6 18L18 6M6 6l12 12" />
+                            <svg className="w-10 h-10 text-brand-primary/40 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                             </svg>
-                          </button>
-                        </div>
-                      )}
+                            <span className="text-xs font-semibold text-brand-primary/70 text-center">Pilih Gambar Struk/Bukti Transfer</span>
+                            <span className="text-[9px] text-brand-primary/40 text-center mt-1">Format gambar .png, .jpg (Maksimal 5MB)</span>
+                          </div>
+                        ) : (
+                          <div className="relative border border-brand-neutral-1/10 rounded-2xl p-4 bg-white flex flex-col items-center justify-center gap-4 shadow-sm flex-grow min-h-[220px]">
+                            <div className="relative w-28 h-36 bg-brand-surface rounded-xl border border-brand-neutral-1/25 overflow-hidden shadow-sm flex-shrink-0">
+                              <Image
+                                src={previewUrl}
+                                alt="Pratinjau Bukti"
+                                fill
+                                className="object-cover"
+                              />
+                            </div>
+                            <div className="flex items-center gap-3 w-full justify-center flex-wrap">
+                              <span className="text-xs font-semibold text-brand-primary truncate max-w-[150px]">{imageFile?.name}</span>
+                              <span className="text-[10px] text-brand-primary/45">({(imageFile!.size / 1024 / 1024).toFixed(2)} MB)</span>
+                              <button
+                                type="button"
+                                onClick={handleClearFile}
+                                className="p-1.5 rounded-full hover:bg-brand-surface text-brand-primary/50 hover:text-brand-accent-bold smooth-transition cursor-pointer"
+                              >
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                              </button>
+                            </div>
+                          </div>
+                        )}
+                      </div>
 
                       <button
                         type="submit"
                         disabled={isPending || !imageFile}
-                        className="w-full bg-brand-primary text-white text-xs font-bold uppercase tracking-wider py-3.5 rounded-full shadow hover:bg-brand-primary/95 disabled:opacity-50 smooth-transition cursor-pointer"
+                        className="w-full bg-brand-primary text-white text-xs font-bold uppercase tracking-wider py-3.5 rounded-full shadow hover:bg-brand-primary/95 disabled:opacity-50 smooth-transition cursor-pointer mt-auto"
                       >
                         {isPending ? 'Mengirim Bukti...' : 'Kirim Bukti Pembayaran'}
                       </button>

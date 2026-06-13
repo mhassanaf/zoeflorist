@@ -145,6 +145,25 @@ export default function OrderManagementClient({ initialOrders }: OrderManagement
   const [mounted, setMounted] = useState(false)
   const [zoomImageUrl, setZoomImageUrl] = useState<string | null>(null)
 
+  // Custom Input Modal State
+  const [modalState, setModalState] = useState<{
+    isOpen: boolean
+    orderId: string | null
+    actionType: 'verify_approve' | 'verify_reject' | 'status_change_paid' | 'status_change_rejected' | null
+    newPaymentStatus?: 'Unpaid' | 'Waiting Verification' | 'Paid' | 'Rejected' | null
+    title: string
+    placeholder: string
+    value: string
+  }>({
+    isOpen: false,
+    orderId: null,
+    actionType: null,
+    newPaymentStatus: null,
+    title: '',
+    placeholder: '',
+    value: '',
+  })
+
   // Interactive inputs per order
   const [adminMessages, setAdminMessages] = useState<Record<string, string>>({})
   const [rejectionReasons, setRejectionReasons] = useState<Record<string, string>>({})
@@ -181,25 +200,35 @@ export default function OrderManagementClient({ initialOrders }: OrderManagement
   }
 
   const handlePaymentStatusChange = async (orderId: string, newPaymentStatus: 'Unpaid' | 'Waiting Verification' | 'Paid' | 'Rejected') => {
-    let reason: string | undefined = undefined
+    if (newPaymentStatus === 'Paid') {
+      setModalState({
+        isOpen: true,
+        orderId,
+        actionType: 'status_change_paid',
+        newPaymentStatus,
+        title: 'Verifikasi Pembayaran Lunas',
+        placeholder: 'Masukkan perkiraan waktu pengerjaan (contoh: 2 Hari Kerja)',
+        value: '',
+      })
+      return
+    }
     if (newPaymentStatus === 'Rejected') {
-      const inputReason = window.prompt('Masukkan alasan penolakan pembayaran (opsional):')
-      if (inputReason !== null) {
-        reason = inputReason
-      }
-    } else if (newPaymentStatus === 'Paid') {
-      const estimation = window.prompt('Masukkan perkiraan waktu pengerjaan produk (contoh: 2 Hari Kerja):')
-      if (estimation === null) {
-        // Cancel process
-        return
-      }
-      reason = `Pembayaran terverifikasi Lunas. Perkiraan pengerjaan buket: ${estimation || 'Sedang diproses'}`
+      setModalState({
+        isOpen: true,
+        orderId,
+        actionType: 'status_change_rejected',
+        newPaymentStatus,
+        title: 'Tolak Pembayaran',
+        placeholder: 'Masukkan alasan penolakan pembayaran (contoh: Struk transfer tidak valid)',
+        value: '',
+      })
+      return
     }
 
     const loadingToastId = showToast('Mengubah status pembayaran...', 'loading')
 
     startTransition(async () => {
-      const res = await updatePaymentStatus(orderId, newPaymentStatus, reason)
+      const res = await updatePaymentStatus(orderId, newPaymentStatus)
       if (res.error) {
         showToast(`Gagal mengubah status pembayaran: ${res.error}`, 'error')
       } else {
@@ -210,43 +239,82 @@ export default function OrderManagementClient({ initialOrders }: OrderManagement
   }
 
   const handleVerify = async (orderId: string, isApproved: boolean) => {
-    const reason = rejectionReasons[orderId] || ''
-    if (!isApproved && !reason.trim()) {
+    if (isApproved) {
+      setModalState({
+        isOpen: true,
+        orderId,
+        actionType: 'verify_approve',
+        title: 'Verifikasi Pembayaran Lunas',
+        placeholder: 'Masukkan perkiraan waktu pengerjaan (contoh: 2 Hari Kerja)',
+        value: '',
+      })
+    } else {
+      setModalState({
+        isOpen: true,
+        orderId,
+        actionType: 'verify_reject',
+        title: 'Tolak Verifikasi Pembayaran',
+        placeholder: 'Masukkan alasan penolakan pembayaran (wajib)',
+        value: '',
+      })
+    }
+  }
+
+  const handleModalSubmit = async () => {
+    const { orderId, actionType, value, newPaymentStatus } = modalState
+    if (!orderId || !actionType) return
+
+    if (actionType === 'verify_reject' && !value.trim()) {
       showToast('Alasan penolakan harus diisi.', 'error')
       return
     }
 
-    let adminMsg = undefined
-    if (isApproved) {
-      const estimation = window.prompt('Masukkan perkiraan waktu pengerjaan produk (contoh: 2 Hari Kerja):')
-      if (estimation === null) {
-        // Cancel process
-        return
-      }
-      adminMsg = `Pembayaran terverifikasi Lunas. Perkiraan pengerjaan buket: ${estimation || 'Sedang diproses'}`
-    } else {
-      adminMsg = reason
+    // Close modal first
+    setModalState((prev) => ({ ...prev, isOpen: false }))
+
+    if (actionType === 'verify_approve') {
+      const adminMsg = `Pembayaran terverifikasi Lunas. Perkiraan pengerjaan buket: ${value.trim() || 'Sedang diproses'}`
+      const loadingToastId = showToast('Menyetujui pembayaran...', 'loading')
+      startTransition(async () => {
+        const res = await verifyPayment(orderId, true, adminMsg)
+        if (res.error) {
+          showToast(`Gagal memverifikasi: ${res.error}`, 'error')
+        } else {
+          showToast('Pembayaran disetujui & pesanan diproses!', 'success')
+        }
+      })
+    } else if (actionType === 'verify_reject') {
+      const loadingToastId = showToast('Menolak pembayaran...', 'loading')
+      startTransition(async () => {
+        const res = await verifyPayment(orderId, false, value.trim())
+        if (res.error) {
+          showToast(`Gagal menolak: ${res.error}`, 'error')
+        } else {
+          showToast('Pembayaran ditolak.', 'success')
+        }
+      })
+    } else if (actionType === 'status_change_paid') {
+      const adminMsg = `Pembayaran terverifikasi Lunas. Perkiraan pengerjaan buket: ${value.trim() || 'Sedang diproses'}`
+      const loadingToastId = showToast('Mengubah status pembayaran...', 'loading')
+      startTransition(async () => {
+        const res = await updatePaymentStatus(orderId, 'Paid', adminMsg)
+        if (res.error) {
+          showToast(`Gagal mengubah status pembayaran: ${res.error}`, 'error')
+        } else {
+          showToast('Status pembayaran berhasil diperbarui!', 'success')
+        }
+      })
+    } else if (actionType === 'status_change_rejected') {
+      const loadingToastId = showToast('Mengubah status pembayaran...', 'loading')
+      startTransition(async () => {
+        const res = await updatePaymentStatus(orderId, 'Rejected', value.trim() || undefined)
+        if (res.error) {
+          showToast(`Gagal mengubah status pembayaran: ${res.error}`, 'error')
+        } else {
+          showToast('Status pembayaran ditolak.', 'success')
+        }
+      })
     }
-
-    const loadingToastId = showToast(
-      isApproved ? 'Menyetujui pembayaran...' : 'Menolak pembayaran...',
-      'loading'
-    )
-
-    startTransition(async () => {
-      const res = await verifyPayment(orderId, isApproved, adminMsg)
-      if (res.error) {
-        showToast(`Gagal memverifikasi: ${res.error}`, 'error')
-      } else {
-        showToast(
-          isApproved ? 'Pembayaran disetujui & pesanan diproses!' : 'Pembayaran ditolak.',
-          'success'
-        )
-        setIsRejecting((prev) => ({ ...prev, [orderId]: false }))
-        setRejectionReasons((prev) => ({ ...prev, [orderId]: '' }))
-        router.refresh()
-      }
-    })
   }
 
   const handleSendMessage = async (orderId: string) => {
@@ -526,37 +594,11 @@ export default function OrderManagementClient({ initialOrders }: OrderManagement
                             Setuju (Lunas)
                           </button>
                           <button
-                            onClick={() => setIsRejecting(prev => ({ ...prev, [order.id]: true }))}
+                            onClick={() => handleVerify(order.id, false)}
                             className="bg-brand-accent-bold hover:bg-brand-accent-bold/90 text-white text-xs font-bold uppercase tracking-wider py-1.5 px-3 rounded-full smooth-transition shadow cursor-pointer"
                           >
                             Tolak
                           </button>
-                        </div>
-                      )}
-
-                      {isRejecting[order.id] && (
-                        <div className="space-y-1.5 pt-1">
-                          <input
-                            type="text"
-                            placeholder="Alasan penolakan"
-                            value={rejectionReasons[order.id] || ''}
-                            onChange={(e) => setRejectionReasons(prev => ({ ...prev, [order.id]: e.target.value }))}
-                            className="w-full px-2.5 py-1.5 bg-brand-surface border border-brand-neutral-1/30 rounded-lg text-xs focus:outline-none"
-                          />
-                          <div className="flex gap-1.5 justify-end">
-                            <button
-                              onClick={() => handleVerify(order.id, false)}
-                              className="bg-brand-accent-bold hover:bg-brand-accent-bold/90 text-white text-[10px] font-bold uppercase py-1 px-2.5 rounded-full smooth-transition cursor-pointer"
-                            >
-                              Kirim
-                            </button>
-                            <button
-                              onClick={() => setIsRejecting(prev => ({ ...prev, [order.id]: false }))}
-                              className="bg-brand-surface text-brand-primary text-[10px] font-bold uppercase py-1 px-2.5 rounded-full smooth-transition border border-brand-neutral-1/30 cursor-pointer"
-                            >
-                              Batal
-                            </button>
-                          </div>
                         </div>
                       )}
                     </div>
@@ -833,50 +875,22 @@ export default function OrderManagementClient({ initialOrders }: OrderManagement
 
                                 {/* Verification Buttons (Waiting Verification) */}
                                 {order.payment_status === 'Waiting Verification' && (
-                                  <div className="bg-brand-surface/40 p-4 rounded-xl border border-brand-neutral-1/10 space-y-3">
+                                  <div className="bg-brand-surface/40 p-4 rounded-xl border border-brand-neutral-1/10 space-y-3 animate-fade-in">
                                     <span className="text-[10px] uppercase font-bold tracking-wider text-brand-primary block">Aksi Verifikasi</span>
-                                    
-                                    {!isRejecting[order.id] ? (
-                                      <div className="flex gap-2">
-                                        <button
-                                          onClick={() => handleVerify(order.id, true)}
-                                          className="flex-grow bg-green-600 hover:bg-green-700 text-white text-[10px] font-bold uppercase tracking-wider py-2 px-3 rounded-full smooth-transition cursor-pointer shadow"
-                                        >
-                                          Setujui (Lunas)
-                                        </button>
-                                        <button
-                                          onClick={() => setIsRejecting((prev) => ({ ...prev, [order.id]: true }))}
-                                          className="bg-brand-accent-bold hover:bg-brand-accent-bold/90 text-white text-[10px] font-bold uppercase tracking-wider py-2 px-4 rounded-full smooth-transition cursor-pointer shadow"
-                                        >
-                                          Tolak
-                                        </button>
-                                      </div>
-                                    ) : (
-                                      <div className="space-y-2">
-                                        <input
-                                          type="text"
-                                          required
-                                          placeholder="Alasan penolakan (misal: nominal kurang)"
-                                          value={rejectionReasons[order.id] || ''}
-                                          onChange={(e) => setRejectionReasons((prev) => ({ ...prev, [order.id]: e.target.value }))}
-                                          className="w-full px-3 py-2 bg-white border border-brand-neutral-1/40 rounded-xl text-xs focus:outline-none"
-                                        />
-                                        <div className="flex gap-2">
-                                          <button
-                                            onClick={() => handleVerify(order.id, false)}
-                                            className="flex-grow bg-brand-accent-bold hover:bg-brand-accent-bold/90 text-white text-[9px] font-bold uppercase tracking-wider py-1.5 px-3 rounded-full smooth-transition cursor-pointer"
-                                          >
-                                            Kirim Penolakan
-                                          </button>
-                                          <button
-                                            onClick={() => setIsRejecting((prev) => ({ ...prev, [order.id]: false }))}
-                                            className="px-3 py-1.5 bg-white border border-brand-neutral-1/40 text-brand-primary text-[9px] font-bold uppercase tracking-wider rounded-full smooth-transition cursor-pointer"
-                                          >
-                                            Batal
-                                          </button>
-                                        </div>
-                                      </div>
-                                    )}
+                                    <div className="flex gap-2">
+                                      <button
+                                        onClick={() => handleVerify(order.id, true)}
+                                        className="flex-grow bg-green-600 hover:bg-green-700 text-white text-[10px] font-bold uppercase tracking-wider py-2 px-3 rounded-full smooth-transition cursor-pointer shadow"
+                                      >
+                                        Setujui (Lunas)
+                                      </button>
+                                      <button
+                                        onClick={() => handleVerify(order.id, false)}
+                                        className="bg-brand-accent-bold hover:bg-brand-accent-bold/90 text-white text-[10px] font-bold uppercase tracking-wider py-2 px-4 rounded-full smooth-transition cursor-pointer shadow"
+                                      >
+                                        Tolak
+                                      </button>
+                                    </div>
                                   </div>
                                 )}
 
@@ -952,6 +966,158 @@ export default function OrderManagementClient({ initialOrders }: OrderManagement
         </div>,
         document.body
       )}
+
+      {/* Custom Modal for Verification & Status Input */}
+      {modalState.isOpen && mounted && (() => {
+        const isApprove = modalState.actionType === 'verify_approve' || modalState.actionType === 'status_change_paid'
+        const getSuggestions = () => {
+          if (modalState.actionType?.includes('reject')) {
+            return [
+              'Struk transfer tidak terbaca',
+              'Nominal transfer kurang',
+              'Struk transfer palsu / berbeda',
+              'Rekening tujuan salah'
+            ]
+          } else {
+            return [
+              '2 Hari Kerja',
+              '3 Hari Kerja',
+              '1 Hari Kerja',
+              'Selesai Hari Ini'
+            ]
+          }
+        }
+        const isSubmitDisabled = !isApprove && !modalState.value.trim()
+
+        return createPortal(
+          <div className="fixed inset-0 bg-brand-primary/40 backdrop-blur-md z-[9999] flex items-center justify-center p-4 animate-fade-in">
+            <div 
+              className="bg-white rounded-[28px] border border-brand-neutral-1/15 shadow-2xl w-full max-w-sm overflow-hidden transform scale-100 transition-all duration-300 animate-slide-down"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Header */}
+              <div className="bg-brand-surface border-b border-brand-neutral-1/10 px-6 py-4 flex justify-between items-center">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-brand-primary/50">
+                  Aksi Admin
+                </span>
+                <button
+                  onClick={() => setModalState((prev) => ({ ...prev, isOpen: false }))}
+                  className="text-brand-primary/45 hover:text-brand-accent-bold smooth-transition cursor-pointer p-1 rounded-full hover:bg-brand-surface-dim/20"
+                >
+                  <svg className="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+
+              {/* Body */}
+              <div className="p-6 space-y-4 text-center">
+                {/* SVG Icon with smooth animation */}
+                {isApprove ? (
+                  <div className="mx-auto w-14 h-14 rounded-full bg-green-50 border border-green-200/50 flex items-center justify-center text-green-600 shadow-sm transition-all duration-300 hover:scale-105">
+                    <svg className="w-7 h-7 filter drop-shadow-[0_2px_4px_rgba(22,163,74,0.15)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7" />
+                    </svg>
+                  </div>
+                ) : (
+                  <div className="mx-auto w-14 h-14 rounded-full bg-red-50 border border-red-200/50 flex items-center justify-center text-brand-accent-bold shadow-sm transition-all duration-300 hover:scale-105">
+                    <svg className="w-7 h-7 filter drop-shadow-[0_2px_4px_rgba(158,59,59,0.15)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                    </svg>
+                  </div>
+                )}
+
+                <div className="space-y-1">
+                  <h4 className="font-serif text-base font-bold text-brand-primary">
+                    {modalState.title}
+                  </h4>
+                  <p className="text-[11px] text-brand-primary/60 max-w-xs mx-auto font-sans leading-relaxed">
+                    {isApprove 
+                      ? 'Tentukan perkiraan waktu pengerjaan buket bunga pesanan ini untuk diinformasikan langsung kepada pelanggan.' 
+                      : 'Masukkan alasan yang jelas agar pelanggan mengerti mengapa pembayaran mereka ditolak.'}
+                  </p>
+                </div>
+
+                {/* Textarea */}
+                <div className="space-y-2 text-left pt-2">
+                  <label className="block text-[10px] font-bold uppercase tracking-wider text-brand-primary/60">
+                    {isApprove ? 'Perkiraan Waktu Pengerjaan:' : 'Alasan Penolakan (Wajib):'}
+                  </label>
+                  <textarea
+                    rows={3}
+                    required={!isApprove}
+                    placeholder={modalState.placeholder}
+                    value={modalState.value}
+                    onChange={(e) => setModalState((prev) => ({ ...prev, value: e.target.value }))}
+                    className={`w-full px-4 py-3 bg-brand-surface border rounded-2xl text-xs focus:outline-none focus:ring-2 text-brand-primary resize-none placeholder-brand-primary/35 font-sans smooth-transition ${
+                      !isApprove && !modalState.value.trim() 
+                        ? 'border-brand-accent-bold/30 focus:border-brand-accent-bold focus:ring-brand-accent-soft/20'
+                        : 'border-brand-neutral-1/40 focus:border-brand-primary focus:ring-brand-neutral-1/30'
+                    }`}
+                  />
+                </div>
+
+                {/* Suggestions pills */}
+                <div className="space-y-2 text-left">
+                  <span className="block text-[9px] font-bold uppercase tracking-wider text-brand-primary/50">Saran Cepat:</span>
+                  <div className="flex flex-wrap gap-1.5">
+                    {getSuggestions().map((suggestion) => (
+                      <button
+                        key={suggestion}
+                        type="button"
+                        onClick={() => setModalState((prev) => ({ ...prev, value: suggestion }))}
+                        className="px-3 py-1.5 bg-brand-surface hover:bg-brand-accent-soft/20 border border-brand-neutral-1/30 hover:border-brand-accent-soft rounded-full text-[10px] text-brand-primary font-medium smooth-transition cursor-pointer active:scale-95"
+                      >
+                        {suggestion}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* Footer */}
+              <div className="bg-brand-surface px-6 py-4 border-t border-brand-neutral-1/10 flex justify-end gap-2.5">
+                <button
+                  type="button"
+                  onClick={() => setModalState((prev) => ({ ...prev, isOpen: false }))}
+                  className="px-5 py-2 bg-white hover:bg-brand-surface border border-brand-neutral-1/30 rounded-full text-[10px] font-bold uppercase tracking-wider text-brand-primary smooth-transition cursor-pointer"
+                >
+                  Batal
+                </button>
+                <button
+                  type="button"
+                  onClick={handleModalSubmit}
+                  disabled={isSubmitDisabled}
+                  className={`px-5 py-2 rounded-full text-[10px] font-bold uppercase tracking-wider smooth-transition shadow-sm hover:shadow cursor-pointer flex items-center gap-1.5 ${
+                    isSubmitDisabled
+                      ? 'bg-zinc-200 text-zinc-400 border border-zinc-300 cursor-not-allowed shadow-none'
+                      : isApprove
+                        ? 'bg-green-600 hover:bg-green-750 text-white active:scale-95 shadow-green-600/10'
+                        : 'bg-brand-accent-bold hover:bg-brand-accent-bold/90 text-white active:scale-95 shadow-brand-accent-bold/10'
+                  }`}
+                >
+                  {isApprove ? (
+                    <>
+                      <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7" />
+                      </svg>
+                      Setujui
+                    </>
+                  ) : (
+                    <>
+                      <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                      Tolak
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>,
+          document.body
+        )
+      })()}
     </div>
   )
 }
