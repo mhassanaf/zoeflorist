@@ -4,6 +4,7 @@ import './globals.css'
 import Navbar from '@/components/Navbar'
 import { createClient } from '@/utils/supabase/server'
 import { ToastProvider } from '@/components/Toast'
+import Link from 'next/link'
 
 const playfair = Playfair_Display({
   subsets: ['latin'],
@@ -67,10 +68,10 @@ export default async function RootLayout({
               <div>
                 <h4 className="font-serif text-lg font-semibold mb-4 text-brand-accent-soft">Navigasi</h4>
                 <ul className="space-y-2 text-sm text-brand-surface/80 font-sans">
-                  <li><a href="/" className="hover:text-brand-accent-soft smooth-transition">Beranda</a></li>
-                  <li><a href="/katalog" className="hover:text-brand-accent-soft smooth-transition">Katalog Produk</a></li>
-                  <li><a href="/favorit" className="hover:text-brand-accent-soft smooth-transition">Koleksi Favorit</a></li>
-                  <li><a href="/panduan" className="hover:text-brand-accent-soft smooth-transition">Panduan Pemesanan</a></li>
+                  <li><Link href="/" className="hover:text-brand-accent-soft smooth-transition">Beranda</Link></li>
+                  <li><Link href="/katalog" className="hover:text-brand-accent-soft smooth-transition">Katalog Produk</Link></li>
+                  <li><Link href="/favorit" className="hover:text-brand-accent-soft smooth-transition">Koleksi Favorit</Link></li>
+                  <li><Link href="/panduan" className="hover:text-brand-accent-soft smooth-transition">Panduan Pemesanan</Link></li>
                 </ul>
               </div>
 

@@ -44,6 +44,11 @@ export default function Navbar({ profile }: NavbarProps) {
     }
   }, [profile])
 
+  // Scroll to top on page navigation
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' })
+  }, [pathname])
+
   const handleLogout = async () => {
     await signOut()
     router.refresh()
@@ -55,6 +60,7 @@ export default function Navbar({ profile }: NavbarProps) {
   const navLinks = [
     { name: 'Beranda', href: '/' },
     { name: 'Katalog', href: '/katalog' },
+    { name: 'Panduan Pemesanan', href: '/panduan' },
   ]
 
   if (profile && profile.role === 'user') {
