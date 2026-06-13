@@ -388,15 +388,39 @@ export default function OrderCardClient({ order: initialOrder, userReviews }: Or
               Informasi & Pembayaran Bukti Transfer
             </h4>
             {order.shipping_courier === 'Pending' ? (
-              <div className="bg-amber-50 border border-amber-200 p-5 rounded-2xl flex gap-3 items-start animate-fade-in text-left">
-                <svg className="w-5 h-5 text-amber-700 flex-shrink-0 mt-0.5 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                <div>
-                  <span className="block text-xs font-bold text-amber-800 uppercase tracking-wider">Menunggu Penentuan Ongkir</span>
-                  <p className="text-xs text-brand-primary/80 mt-1 font-sans leading-relaxed">
-                    Pesanan Anda telah diterima oleh admin. Mohon menunggu beberapa saat selagi admin meninjau alamat Anda untuk menentukan biaya ongkos kirim. Halaman ini akan diperbarui secara otomatis setelah ongkir ditetapkan.
-                  </p>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-stretch animate-fade-in text-left">
+                {/* Left Box: Pending status */}
+                <div className="bg-white p-6 rounded-2xl border border-brand-neutral-1/15 shadow-inner flex flex-col items-center justify-center text-center h-auto md:h-[450px] transition-all duration-500 ease-in-out">
+                  <div className="space-y-4 max-w-xs mx-auto flex flex-col items-center">
+                    <div className="w-14 h-14 rounded-full bg-amber-50 border border-amber-200 flex items-center justify-center text-amber-700 animate-pulse shadow-sm">
+                      <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                    </div>
+                    <div className="space-y-1.5">
+                      <span className="block text-xs font-bold text-amber-800 uppercase tracking-wider font-sans">Menunggu Penentuan Ongkir</span>
+                      <p className="text-xs text-brand-primary/70 font-sans leading-relaxed">
+                        Staf admin kami sedang meninjau alamat pengiriman Anda untuk menghitung ongkos kirim secara manual. Informasi rekening akan otomatis terbuka.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Right Box: Locked upload */}
+                <div className="bg-white p-6 rounded-2xl border border-brand-neutral-1/15 shadow-inner flex flex-col items-center justify-center text-center h-auto md:h-[450px] transition-all duration-500 ease-in-out">
+                  <div className="space-y-4 max-w-xs mx-auto flex flex-col items-center">
+                    <div className="w-14 h-14 rounded-full bg-zinc-50 border border-zinc-200 flex items-center justify-center text-zinc-400 shadow-sm">
+                      <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                      </svg>
+                    </div>
+                    <div className="space-y-1.5">
+                      <span className="block text-xs font-bold text-zinc-500 uppercase tracking-wider font-sans">Formulir Terkunci</span>
+                      <p className="text-xs text-brand-primary/50 font-sans leading-relaxed">
+                        Formulir unggah bukti transfer akan aktif setelah nominal pembayaran final (termasuk ongkir) ditetapkan.
+                      </p>
+                    </div>
+                  </div>
                 </div>
               </div>
             ) : (
