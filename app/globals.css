@@ -17,6 +17,8 @@
   --animate-fade-in-up: fade-in-up 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
   --animate-fade-in: fade-in 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
   --animate-slide-down: slide-down 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  --animate-bloom: bloom 2.4s ease-in-out infinite;
+  --animate-rotate-flower: rotate-flower 10s linear infinite;
   --animate-shimmer: shimmer 2s infinite linear;
 }
 
@@ -48,6 +50,27 @@
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+@keyframes bloom {
+  0%, 100% {
+    transform: rotate(var(--rotation)) scale(0.65);
+    opacity: 0.45;
+  }
+  50% {
+    transform: rotate(var(--rotation)) scale(1.15);
+    opacity: 0.95;
+    filter: drop-shadow(0 0 6px rgba(158, 59, 59, 0.2));
+  }
+}
+
+@keyframes rotate-flower {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
   }
 }
 

@@ -18,13 +18,16 @@ export default async function Home() {
     const { data: { user: currentUser } } = await supabase.auth.getUser()
     user = currentUser
     isLoggedIn = !!user
-    
-    // Fetch products (automatic seed runs inside this helper if table is empty)
-    await getProducts()
-    bestSellers = await getBestSellers(4)
 
     if (isLoggedIn) {
-      favoritesMap = await getFavoritesMap()
+      const [bestSellersData, favoritesMapData] = await Promise.all([
+        getBestSellers(4),
+        getFavoritesMap()
+      ])
+      bestSellers = bestSellersData
+      favoritesMap = favoritesMapData
+    } else {
+      bestSellers = await getBestSellers(4)
     }
   } catch (error) {
     console.error('Error in home page data fetching:', error)

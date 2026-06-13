@@ -14,8 +14,10 @@ export default async function FavoritPage() {
     redirect('/login?error=Silakan login terlebih dahulu untuk melihat koleksi favorit Anda.')
   }
 
-  const favoritedProducts = await getFavorites()
-  const favoritesMap = await getFavoritesMap()
+  const [favoritedProducts, favoritesMap] = await Promise.all([
+    getFavorites(),
+    getFavoritesMap()
+  ])
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-5 pb-12 sm:pt-6 md:pt-6 md:pb-12 animate-fade-in-up">

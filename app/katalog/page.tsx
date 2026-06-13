@@ -15,10 +15,15 @@ export default async function KatalogPage() {
     const { data: { user } } = await supabase.auth.getUser()
     isLoggedIn = !!user
 
-    products = await getProducts()
-    
     if (isLoggedIn) {
-      favoritesMap = await getFavoritesMap()
+      const [productsData, favoritesMapData] = await Promise.all([
+        getProducts(),
+        getFavoritesMap()
+      ])
+      products = productsData
+      favoritesMap = favoritesMapData
+    } else {
+      products = await getProducts()
     }
   } catch (error) {
     console.error('Error fetching catalog data:', error)

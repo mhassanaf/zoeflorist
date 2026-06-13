@@ -29,21 +29,20 @@ export default async function AdminDashboardPage() {
   }
 
   try {
-    // Load stats and orders
-    const statsResult = await getDashboardStats()
+    const [statsResult, ordersResult, reviewsResult] = await Promise.all([
+      getDashboardStats(),
+      getAdminOrders(),
+      supabase
+        .from('reviews')
+        .select('*, profiles(name, email), products(name)')
+        .order('created_at', { ascending: false })
+    ])
+
     if (!('error' in statsResult)) {
       stats = statsResult
     }
-    
-    recentOrders = await getAdminOrders()
-    recentOrders = recentOrders.slice(0, 5) // Show top 5
-
-    // Load all reviews
-    const { data: reviewsData } = await supabase
-      .from('reviews')
-      .select('*, profiles(name, email), products(name)')
-      .order('created_at', { ascending: false })
-    allReviews = reviewsData || []
+    recentOrders = (ordersResult || []).slice(0, 5) // Show top 5
+    allReviews = reviewsResult.data || []
   } catch (error) {
     console.error('Error fetching admin dashboard data:', error)
   }

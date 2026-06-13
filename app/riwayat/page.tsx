@@ -14,18 +14,21 @@ export default async function RiwayatPage() {
     redirect('/login?error=Silakan login terlebih dahulu untuk melihat riwayat pesanan.')
   }
 
-  const orders = await getUserOrders()
-
-  // Fetch reviews to check if they have already reviewed a product
+  let orders: any[] = []
   let userReviews: any[] = []
+
   try {
-    const { data } = await supabase
-      .from('reviews')
-      .select('product_id, rating, comment')
-      .eq('user_id', user.id)
-    userReviews = data || []
+    const [ordersData, reviewsResult] = await Promise.all([
+      getUserOrders(),
+      supabase
+        .from('reviews')
+        .select('product_id, rating, comment')
+        .eq('user_id', user.id)
+    ])
+    orders = ordersData
+    userReviews = reviewsResult.data || []
   } catch (err) {
-    console.error('Error fetching user reviews:', err)
+    console.error('Error fetching user reviews and orders:', err)
   }
 
   return (
