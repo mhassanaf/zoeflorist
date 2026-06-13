@@ -7,6 +7,7 @@ import Image from 'next/image'
 import { updateOrderStatus, verifyPayment, sendAdminMessage, updatePaymentStatus } from '@/app/actions/orders'
 import { useRouter } from 'next/navigation'
 import { useToast } from '@/components/Toast'
+import { createClient } from '@/utils/supabase/client'
 
 interface Product {
   id: string
@@ -62,7 +63,83 @@ export default function OrderManagementClient({ initialOrders }: OrderManagement
   const router = useRouter()
   const { showToast } = useToast()
   const [isPending, startTransition] = useTransition()
+  const [orders, setOrders] = useState<Order[]>(initialOrders)
   const [expandedOrderId, setExpandedOrderId] = useState<string | null>(null)
+
+  // Sync state if initialOrders props change
+  useEffect(() => {
+    setOrders(initialOrders)
+  }, [initialOrders])
+
+  useEffect(() => {
+    const supabase = createClient()
+
+    const fetchSingleOrder = async (orderId: string) => {
+      const { data, error } = await supabase
+        .from('orders')
+        .select(`
+          id,
+          total_amount,
+          shipping_name,
+          shipping_phone,
+          shipping_address,
+          payment_method,
+          payment_proof_url,
+          payment_status,
+          admin_message,
+          created_at,
+          status,
+          shipping_fee,
+          shipping_courier,
+          profiles(name, email),
+          order_items(
+            id,
+            quantity,
+            price,
+            product_id,
+            products(id, name, image_url, size, color)
+          )
+        `)
+        .eq('id', orderId)
+        .single()
+
+      if (error) {
+        console.error('Error fetching realtime order detail:', error)
+        return null
+      }
+      return data as any
+    }
+
+    const channel = supabase
+      .channel('admin-orders-realtime')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'orders' },
+        async (payload: any) => {
+          console.log('Realtime orders change captured:', payload)
+          if (payload.eventType === 'INSERT') {
+            const newOrder = await fetchSingleOrder(payload.new.id)
+            if (newOrder) {
+              setOrders((prev) => [newOrder, ...prev])
+            }
+          } else if (payload.eventType === 'UPDATE') {
+            const updatedOrder = await fetchSingleOrder(payload.new.id)
+            if (updatedOrder) {
+              setOrders((prev) =>
+                prev.map((o) => (o.id === payload.new.id ? updatedOrder : o))
+              )
+            }
+          } else if (payload.eventType === 'DELETE') {
+            setOrders((prev) => prev.filter((o) => o.id !== payload.old.id))
+          }
+        }
+      )
+      .subscribe()
+
+    return () => {
+      supabase.removeChannel(channel)
+    }
+  }, [])
 
   // Portal and Zoom Image States
   const [mounted, setMounted] = useState(false)
@@ -87,7 +164,6 @@ export default function OrderManagementClient({ initialOrders }: OrderManagement
       } else {
         showToast(`Status pesanan ${orderId.slice(0, 8)}... berhasil diperbarui!`, 'success')
         router.refresh()
-        setTimeout(() => window.location.reload(), 500)
       }
     })
   }
@@ -110,7 +186,6 @@ export default function OrderManagementClient({ initialOrders }: OrderManagement
       } else {
         showToast('Status pembayaran berhasil diperbarui!', 'success')
         router.refresh()
-        setTimeout(() => window.location.reload(), 500)
       }
     })
   }
@@ -139,7 +214,6 @@ export default function OrderManagementClient({ initialOrders }: OrderManagement
         setIsRejecting((prev) => ({ ...prev, [orderId]: false }))
         setRejectionReasons((prev) => ({ ...prev, [orderId]: '' }))
         router.refresh()
-        setTimeout(() => window.location.reload(), 500)
       }
     })
   }
@@ -161,7 +235,6 @@ export default function OrderManagementClient({ initialOrders }: OrderManagement
         showToast('Pesan berhasil dikirim ke pelanggan!', 'success')
         setAdminMessages((prev) => ({ ...prev, [orderId]: '' }))
         router.refresh()
-        setTimeout(() => window.location.reload(), 500)
       }
     })
   }
@@ -218,8 +291,8 @@ export default function OrderManagementClient({ initialOrders }: OrderManagement
 
       {/* Mobile Card List View (Visible only on mobile/tablet) */}
       <div className="lg:hidden space-y-6 mb-4">
-        {initialOrders.length > 0 ? (
-          initialOrders.map((order) => {
+        {orders.length > 0 ? (
+          orders.map((order) => {
             const isExpanded = expandedOrderId === order.id
             return (
               <div key={order.id} className="bg-white rounded-2xl border border-brand-neutral-1/10 shadow-sm overflow-hidden flex flex-col p-5 space-y-4">
@@ -461,7 +534,7 @@ export default function OrderManagementClient({ initialOrders }: OrderManagement
       {/* Desktop Table View (Visible only on desktop) */}
       <div className="hidden lg:block w-full bg-white rounded-2xl border border-brand-neutral-1/10 shadow-sm overflow-hidden">
         <div className="w-full overflow-x-auto">
-          {initialOrders.length > 0 ? (
+          {orders.length > 0 ? (
             <table className="w-full min-w-[800px] text-left border-collapse font-sans">
               <thead>
                 <tr className="bg-brand-surface text-[10px] uppercase tracking-wider font-semibold text-brand-primary/70 border-b border-brand-neutral-1/10">
@@ -475,7 +548,7 @@ export default function OrderManagementClient({ initialOrders }: OrderManagement
                 </tr>
               </thead>
               <tbody className="divide-y divide-brand-neutral-1/10 text-sm">
-                {initialOrders.map((order) => {
+                {orders.map((order) => {
                   const isExpanded = expandedOrderId === order.id
                   return (
                     <Fragment key={order.id}>

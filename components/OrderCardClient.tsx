@@ -5,6 +5,7 @@ import Image from 'next/image'
 import { submitPaymentProof } from '@/app/actions/orders'
 import { useToast } from '@/components/Toast'
 import OrderReviewButton from '@/components/OrderReviewButton'
+import { createClient } from '@/utils/supabase/client'
 
 interface Product {
   id: string
@@ -58,9 +59,10 @@ const paymentStatusColors: Record<string, string> = {
   Rejected: 'bg-red-100 text-red-800 border-red-200',
 }
 
-export default function OrderCardClient({ order, userReviews }: OrderCardClientProps) {
+export default function OrderCardClient({ order: initialOrder, userReviews }: OrderCardClientProps) {
   const { showToast, dismissToast } = useToast()
   const [isPending, startTransition] = useTransition()
+  const [order, setOrder] = useState<Order>(initialOrder)
   
   // File upload state
   const [imageFile, setImageFile] = useState<File | null>(null)
@@ -69,6 +71,41 @@ export default function OrderCardClient({ order, userReviews }: OrderCardClientP
   // Copy-to-clipboard state
   const [copiedText, setCopiedText] = useState(false)
   const [isExpanded, setIsExpanded] = useState(false)
+
+  useEffect(() => {
+    // Only subscribe to active orders
+    if (order.status === 'Completed' || order.status === 'Cancelled') {
+      return
+    }
+
+    const supabase = createClient()
+    const channel = supabase
+      .channel(`order-updates-${order.id}`)
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'orders',
+          filter: `id=eq.${order.id}`,
+        },
+        (payload: any) => {
+          console.log('Realtime order update received:', payload.new)
+          const updated = payload.new
+          setOrder((prev) => ({
+            ...prev,
+            status: updated.status,
+            payment_status: updated.payment_status,
+            admin_message: updated.admin_message,
+          }))
+        }
+      )
+      .subscribe()
+
+    return () => {
+      supabase.removeChannel(channel)
+    }
+  }, [order.id, order.status])
 
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -117,8 +154,6 @@ export default function OrderCardClient({ order, userReviews }: OrderCardClientP
         showToast('Bukti transfer berhasil dikirim. Menunggu verifikasi admin.', 'success')
         setImageFile(null)
         setPreviewUrl(null)
-        // Reload page to reflect changes
-        setTimeout(() => window.location.reload(), 800)
       }
     })
   }

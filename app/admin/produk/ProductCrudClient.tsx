@@ -7,6 +7,7 @@ import Image from 'next/image'
 import { createProduct, updateProduct, deleteProduct, uploadProductImage } from '@/app/actions/products'
 import { useRouter } from 'next/navigation'
 import { useToast } from '@/components/Toast'
+import { createClient } from '@/utils/supabase/client'
 
 interface Product {
   id: string
@@ -32,8 +33,39 @@ export default function ProductCrudClient({ initialProducts }: ProductCrudClient
 
   // Portal mounted state
   const [mounted, setMounted] = useState(false)
+  
+  // Sync state if initialProducts props change
+  useEffect(() => {
+    setProducts(initialProducts)
+  }, [initialProducts])
+
   useEffect(() => {
     setMounted(true)
+
+    const supabase = createClient()
+    const channel = supabase
+      .channel('admin-products-realtime')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'products' },
+        (payload: any) => {
+          console.log('Realtime products change captured:', payload)
+          if (payload.eventType === 'INSERT') {
+            setProducts((prev) => [payload.new as Product, ...prev])
+          } else if (payload.eventType === 'UPDATE') {
+            setProducts((prev) =>
+              prev.map((p) => (p.id === payload.new.id ? (payload.new as Product) : p))
+            )
+          } else if (payload.eventType === 'DELETE') {
+            setProducts((prev) => prev.filter((p) => p.id !== payload.old.id))
+          }
+        }
+      )
+      .subscribe()
+
+    return () => {
+      supabase.removeChannel(channel)
+    }
   }, [])
 
   // Modal / Form state
@@ -144,7 +176,6 @@ export default function ProductCrudClient({ initialProducts }: ProductCrudClient
         )
         setIsOpen(false)
         router.refresh()
-        setTimeout(() => window.location.reload(), 500)
       }
     })
   }
@@ -161,7 +192,6 @@ export default function ProductCrudClient({ initialProducts }: ProductCrudClient
       } else {
         showToast('Bouquet bunga berhasil dihapus!', 'success')
         router.refresh()
-        setTimeout(() => window.location.reload(), 500)
       }
     })
   }
