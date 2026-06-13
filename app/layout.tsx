@@ -70,6 +70,7 @@ export default async function RootLayout({
                   <li><a href="/" className="hover:text-brand-accent-soft smooth-transition">Beranda</a></li>
                   <li><a href="/katalog" className="hover:text-brand-accent-soft smooth-transition">Katalog Produk</a></li>
                   <li><a href="/favorit" className="hover:text-brand-accent-soft smooth-transition">Koleksi Favorit</a></li>
+                  <li><a href="/panduan" className="hover:text-brand-accent-soft smooth-transition">Panduan Pemesanan</a></li>
                 </ul>
               </div>
 
