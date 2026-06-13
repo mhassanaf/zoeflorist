@@ -4,7 +4,7 @@ import { useState, useTransition, useEffect, Fragment } from 'react'
 import { createPortal } from 'react-dom'
 import Link from 'next/link'
 import Image from 'next/image'
-import { updateOrderStatus, verifyPayment, sendAdminMessage, updatePaymentStatus } from '@/app/actions/orders'
+import { updateOrderStatus, verifyPayment, sendAdminMessage, updatePaymentStatus, updateOrderShippingFee } from '@/app/actions/orders'
 import { useRouter } from 'next/navigation'
 import { useToast } from '@/components/Toast'
 import { createClient } from '@/utils/supabase/client'
@@ -154,6 +154,18 @@ export default function OrderManagementClient({ initialOrders }: OrderManagement
     setMounted(true)
   }, [])
 
+  const handleSetShippingFee = async (orderId: string, shippingFee: number) => {
+    const loadingToastId = showToast('Menentukan ongkos kirim...', 'loading')
+    startTransition(async () => {
+      const res = await updateOrderShippingFee(orderId, shippingFee)
+      if (res.error) {
+        showToast(`Gagal menentukan ongkir: ${res.error}`, 'error')
+      } else {
+        showToast('Ongkos kirim berhasil ditentukan!', 'success')
+      }
+    })
+  }
+
   const handleStatusChange = async (orderId: string, newStatus: any) => {
     const loadingToastId = showToast('Mengubah status pesanan...', 'loading')
 
@@ -175,6 +187,13 @@ export default function OrderManagementClient({ initialOrders }: OrderManagement
       if (inputReason !== null) {
         reason = inputReason
       }
+    } else if (newPaymentStatus === 'Paid') {
+      const estimation = window.prompt('Masukkan perkiraan waktu pengerjaan produk (contoh: 2 Hari Kerja):')
+      if (estimation === null) {
+        // Cancel process
+        return
+      }
+      reason = `Pembayaran terverifikasi Lunas. Perkiraan pengerjaan buket: ${estimation || 'Sedang diproses'}`
     }
 
     const loadingToastId = showToast('Mengubah status pembayaran...', 'loading')
@@ -197,13 +216,25 @@ export default function OrderManagementClient({ initialOrders }: OrderManagement
       return
     }
 
+    let adminMsg = undefined
+    if (isApproved) {
+      const estimation = window.prompt('Masukkan perkiraan waktu pengerjaan produk (contoh: 2 Hari Kerja):')
+      if (estimation === null) {
+        // Cancel process
+        return
+      }
+      adminMsg = `Pembayaran terverifikasi Lunas. Perkiraan pengerjaan buket: ${estimation || 'Sedang diproses'}`
+    } else {
+      adminMsg = reason
+    }
+
     const loadingToastId = showToast(
       isApproved ? 'Menyetujui pembayaran...' : 'Menolak pembayaran...',
       'loading'
     )
 
     startTransition(async () => {
-      const res = await verifyPayment(orderId, isApproved, isApproved ? undefined : reason)
+      const res = await verifyPayment(orderId, isApproved, adminMsg)
       if (res.error) {
         showToast(`Gagal memverifikasi: ${res.error}`, 'error')
       } else {
@@ -411,21 +442,53 @@ export default function OrderManagementClient({ initialOrders }: OrderManagement
                     </div>
 
                     {/* Address details */}
-                    <div className="bg-brand-surface/40 p-3.5 rounded-xl border border-brand-neutral-1/10 text-xs text-brand-primary/80 space-y-1.5">
+                    <div className="bg-brand-surface/40 p-3.5 rounded-xl border border-brand-neutral-1/10 text-xs text-brand-primary/80 space-y-1.5 text-left">
                       <h4 className="text-[10px] uppercase font-bold tracking-wider text-brand-primary/50 mb-1">Info Penerima</h4>
                       <div><span className="font-semibold">Nama:</span> {order.shipping_name}</div>
                       <div><span className="font-semibold">HP:</span> {order.shipping_phone}</div>
                       <div className="line-clamp-2"><span className="font-semibold">Alamat:</span> {order.shipping_address}</div>
-                      {order.shipping_courier && (
-                        <div>
-                          <span className="font-semibold">Kurir:</span>{' '}
-                          <span className="bg-brand-accent-soft/20 text-brand-accent-bold font-bold px-1 rounded text-[9px] uppercase">
-                            {order.shipping_courier}
-                          </span>
+                      {order.shipping_courier === 'Pending' ? (
+                        <div className="pt-2 border-t border-brand-neutral-1/10 space-y-2">
+                          <span className="font-semibold text-brand-primary block text-[10px] uppercase tracking-wider">Tentukan Ongkir Manual:</span>
+                          <div className="flex gap-2">
+                            <input
+                              type="number"
+                              min="0"
+                              placeholder="Nominal Ongkir (Rp)"
+                              id={`ongkir-mobile-${order.id}`}
+                              className="w-full px-2.5 py-1.5 bg-white border border-brand-neutral-1/40 rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-brand-accent-bold"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const input = document.getElementById(`ongkir-mobile-${order.id}`) as HTMLInputElement
+                                const fee = Number(input?.value)
+                                if (isNaN(fee) || fee < 0) {
+                                  showToast('Nominal ongkir tidak valid.', 'error')
+                                  return
+                                }
+                                handleSetShippingFee(order.id, fee)
+                              }}
+                              className="px-3 py-1.5 bg-brand-accent-bold hover:bg-brand-accent-bold/90 text-white font-bold rounded-lg text-xs smooth-transition shadow-sm cursor-pointer"
+                            >
+                              Set
+                            </button>
+                          </div>
                         </div>
-                      )}
-                      {order.shipping_fee !== undefined && order.shipping_fee > 0 && (
-                        <div><span className="font-semibold">Ongkir:</span> Rp {order.shipping_fee.toLocaleString('id-ID')}</div>
+                      ) : (
+                        <>
+                          {order.shipping_courier && (
+                            <div>
+                              <span className="font-semibold">Metode Pengiriman:</span>{' '}
+                              <span className="bg-brand-accent-soft/20 text-brand-accent-bold font-bold px-1 rounded text-[9px] uppercase">
+                                {order.shipping_courier.split(':')[0]}
+                              </span>
+                            </div>
+                          )}
+                          {order.shipping_fee !== undefined && order.shipping_fee > 0 && (
+                            <div><span className="font-semibold">Ongkir:</span> Rp {order.shipping_fee.toLocaleString('id-ID')}</div>
+                          )}
+                        </>
                       )}
                     </div>
 
@@ -673,19 +736,51 @@ export default function OrderManagementClient({ initialOrders }: OrderManagement
                                       order.payment_method === 'Bank Transfer' ? 'Transfer BCA' : order.payment_method === 'E-wallet' ? 'E-Wallet (Dana/GoPay)' : order.payment_method
                                     }
                                   </div>
-                                  {order.shipping_courier && (
-                                    <div>
-                                      <span className="font-semibold text-brand-primary">Ekspedisi (Kurir):</span>{' '}
-                                      <span className="bg-brand-accent-soft/20 text-brand-accent-bold font-bold px-1.5 py-0.5 rounded text-[9px] uppercase font-sans">
-                                        {order.shipping_courier}
-                                      </span>
+                                  {order.shipping_courier === 'Pending' ? (
+                                    <div className="pt-2 border-t border-brand-neutral-1/10 space-y-2">
+                                      <span className="font-semibold text-brand-primary block text-[10px] uppercase tracking-wider">Tentukan Ongkir Manual:</span>
+                                      <div className="flex gap-2">
+                                        <input
+                                          type="number"
+                                          min="0"
+                                          placeholder="Nominal Ongkir (Rp)"
+                                          id={`ongkir-${order.id}`}
+                                          className="w-full px-2.5 py-1.5 bg-brand-surface border border-brand-neutral-1/40 rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-brand-accent-bold"
+                                        />
+                                        <button
+                                          type="button"
+                                          onClick={() => {
+                                            const input = document.getElementById(`ongkir-${order.id}`) as HTMLInputElement
+                                            const fee = Number(input?.value)
+                                            if (isNaN(fee) || fee < 0) {
+                                              showToast('Nominal ongkir tidak valid.', 'error')
+                                              return
+                                            }
+                                            handleSetShippingFee(order.id, fee)
+                                          }}
+                                          className="px-3 py-1.5 bg-brand-accent-bold hover:bg-brand-accent-bold/90 text-white font-bold rounded-lg text-xs smooth-transition shadow-sm cursor-pointer"
+                                        >
+                                          Set
+                                        </button>
+                                      </div>
                                     </div>
-                                  )}
-                                  {order.shipping_fee !== undefined && order.shipping_fee > 0 && (
-                                    <div>
-                                      <span className="font-semibold text-brand-primary">Ongkos Kirim:</span>{' '}
-                                      Rp {Number(order.shipping_fee).toLocaleString('id-ID')}
-                                    </div>
+                                  ) : (
+                                    <>
+                                      {order.shipping_courier && (
+                                        <div>
+                                          <span className="font-semibold text-brand-primary">Metode Pengiriman:</span>{' '}
+                                          <span className="bg-brand-accent-soft/20 text-brand-accent-bold font-bold px-1.5 py-0.5 rounded text-[9px] uppercase font-sans">
+                                            {order.shipping_courier.split(':')[0]}
+                                          </span>
+                                        </div>
+                                      )}
+                                      {order.shipping_fee !== undefined && order.shipping_fee > 0 && (
+                                        <div>
+                                          <span className="font-semibold text-brand-primary">Ongkos Kirim:</span>{' '}
+                                          Rp {Number(order.shipping_fee).toLocaleString('id-ID')}
+                                        </div>
+                                      )}
+                                    </>
                                   )}
                                 </div>
                               </div>

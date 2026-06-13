@@ -50,22 +50,19 @@ export async function createOrder(shipping: ShippingDetails, items: CartItem[]) 
     totalAmount += Number(product.price) * item.quantity
   }
 
-  const shippingFee = Number(shipping.shipping_fee) || 0
-  const finalTotalAmount = totalAmount + shippingFee
-
   // Insert order
   const { data: order, error: orderError } = await supabase
     .from('orders')
     .insert({
       user_id: user.id,
       status: 'Pending',
-      total_amount: finalTotalAmount,
+      total_amount: totalAmount,
       shipping_name: shipping.shipping_name,
       shipping_phone: shipping.shipping_phone,
       shipping_address: shipping.shipping_address,
       payment_method: shipping.payment_method,
-      shipping_fee: shippingFee,
-      shipping_courier: shipping.shipping_courier || null,
+      shipping_fee: 0,
+      shipping_courier: 'Pending',
     })
     .select()
     .single()
@@ -74,7 +71,7 @@ export async function createOrder(shipping: ShippingDetails, items: CartItem[]) 
     return { error: `Gagal membuat pesanan: ${orderError?.message || 'Gagal menyimpan pesanan'}` }
   }
 
-  // Insert order items & update product stock
+  // Insert order items
   for (const item of items) {
     const { error: itemError } = await supabase.from('order_items').insert({
       order_id: order.id,
@@ -86,16 +83,6 @@ export async function createOrder(shipping: ShippingDetails, items: CartItem[]) 
     if (itemError) {
       return { error: `Gagal menyimpan detail pesanan: ${itemError.message}` }
     }
-
-    // Decrement stock
-    const { data: currentProduct } = await supabase
-      .from('products')
-      .select('stock')
-      .eq('id', item.id)
-      .single()
-
-    const newStock = Math.max(0, (currentProduct?.stock || 0) - item.quantity)
-    await supabase.from('products').update({ stock: newStock }).eq('id', item.id)
   }
 
   revalidatePath('/riwayat')
@@ -281,6 +268,17 @@ export async function verifyPayment(orderId: string, isApproved: boolean, adminM
     return { error: 'Akses ditolak. Anda bukan admin.' }
   }
 
+  // Get current order status to prevent double decrement
+  const { data: currentOrder, error: fetchError } = await supabase
+    .from('orders')
+    .select('payment_status')
+    .eq('id', orderId)
+    .single()
+
+  if (fetchError || !currentOrder) {
+    return { error: 'Pesanan tidak ditemukan.' }
+  }
+
   const payload: any = {
     payment_status: isApproved ? 'Paid' : 'Rejected',
     admin_message: adminMessage || null,
@@ -298,6 +296,11 @@ export async function verifyPayment(orderId: string, isApproved: boolean, adminM
 
   if (error) {
     return { error: error.message }
+  }
+
+  // If approved and the previous status was not Paid, decrement stock!
+  if (isApproved && currentOrder.payment_status !== 'Paid') {
+    await decrementOrderStock(supabase, orderId)
   }
 
   revalidatePath('/riwayat')
@@ -319,6 +322,17 @@ export async function updatePaymentStatus(
     return { error: 'Akses ditolak. Anda bukan admin.' }
   }
 
+  // Get current order status to prevent double decrement
+  const { data: currentOrder, error: fetchError } = await supabase
+    .from('orders')
+    .select('payment_status')
+    .eq('id', orderId)
+    .single()
+
+  if (fetchError || !currentOrder) {
+    return { error: 'Pesanan tidak ditemukan.' }
+  }
+
   const payload: any = {
     payment_status: paymentStatus,
   }
@@ -328,13 +342,13 @@ export async function updatePaymentStatus(
   }
 
   if (paymentStatus === 'Paid') {
-    const { data: currentOrder } = await supabase
+    const { data: currentOrderData } = await supabase
       .from('orders')
       .select('status')
       .eq('id', orderId)
       .single()
 
-    if (currentOrder?.status === 'Pending') {
+    if (currentOrderData?.status === 'Pending') {
       payload.status = 'Processing'
     }
   }
@@ -347,6 +361,11 @@ export async function updatePaymentStatus(
 
   if (error) {
     return { error: error.message }
+  }
+
+  // If changing to Paid and the previous status was not Paid, decrement stock!
+  if (paymentStatus === 'Paid' && currentOrder.payment_status !== 'Paid') {
+    await decrementOrderStock(supabase, orderId)
   }
 
   revalidatePath('/riwayat')
@@ -367,6 +386,156 @@ export async function sendAdminMessage(orderId: string, message: string) {
   const { data, error } = await supabase
     .from('orders')
     .update({ admin_message: message || null })
+    .eq('id', orderId)
+    .select()
+
+  if (error) {
+    return { error: error.message }
+  }
+
+  revalidatePath('/riwayat')
+  revalidatePath('/admin/pesanan')
+  revalidatePath('/admin/dashboard')
+
+  return { success: true, data }
+}
+
+// Helper function to decrement product stock when payment is verified Paid
+async function decrementOrderStock(supabase: any, orderId: string) {
+  const { data: items, error: itemsError } = await supabase
+    .from('order_items')
+    .select('product_id, quantity')
+    .eq('order_id', orderId)
+
+  if (itemsError || !items) {
+    console.error('Error fetching order items for stock decrement:', itemsError)
+    return
+  }
+
+  for (const item of items) {
+    const { data: currentProduct, error: fetchError } = await supabase
+      .from('products')
+      .select('stock')
+      .eq('id', item.product_id)
+      .single()
+
+    if (fetchError || !currentProduct) {
+      console.error(`Product not found for stock decrement: ${item.product_id}`)
+      continue
+    }
+
+    const newStock = Math.max(0, currentProduct.stock - item.quantity)
+    const { error: updateError } = await supabase
+      .from('products')
+      .update({ stock: newStock })
+      .eq('id', item.product_id)
+
+    if (updateError) {
+      console.error(`Failed to update stock for product ${item.product_id}:`, updateError)
+    }
+  }
+}
+
+// Action for Admin to input shipping fee manually
+export async function updateOrderShippingFee(orderId: string, shippingFee: number) {
+  const supabase = await createClient()
+  const isAdmin = await checkAdmin(supabase)
+
+  if (!isAdmin) {
+    return { error: 'Akses ditolak. Anda bukan admin.' }
+  }
+
+  // Get order items to recalculate total
+  const { data: order, error: orderError } = await supabase
+    .from('orders')
+    .select('*, order_items(*)')
+    .eq('id', orderId)
+    .single()
+
+  if (orderError || !order) {
+    return { error: 'Pesanan tidak ditemukan.' }
+  }
+
+  const productTotal = order.order_items.reduce((sum: number, item: any) => sum + (Number(item.price) * item.quantity), 0)
+  const finalTotalAmount = productTotal + shippingFee
+
+  const { data, error } = await supabase
+    .from('orders')
+    .update({
+      shipping_fee: shippingFee,
+      shipping_courier: `Kirim:${shippingFee}`,
+      total_amount: finalTotalAmount,
+    })
+    .eq('id', orderId)
+    .select()
+
+  if (error) {
+    return { error: error.message }
+  }
+
+  revalidatePath('/riwayat')
+  revalidatePath('/admin/pesanan')
+  revalidatePath('/admin/dashboard')
+
+  return { success: true, data }
+}
+
+// Action for User to choose delivery method (Kirim / Pickup)
+export async function updateOrderDeliveryMethod(orderId: string, method: 'Kirim' | 'Pickup') {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+
+  if (!user) {
+    return { error: 'Silakan login terlebih dahulu.' }
+  }
+
+  const { data: order, error: orderError } = await supabase
+    .from('orders')
+    .select('*, order_items(*)')
+    .eq('id', orderId)
+    .single()
+
+  if (orderError || !order) {
+    return { error: 'Pesanan tidak ditemukan.' }
+  }
+
+  const isAdmin = await checkAdmin(supabase)
+  if (order.user_id !== user.id && !isAdmin) {
+    return { error: 'Akses ditolak.' }
+  }
+
+  if (order.payment_status === 'Paid' || order.payment_status === 'Waiting Verification') {
+    return { error: 'Metode pengiriman tidak dapat diubah setelah pembayaran diproses.' }
+  }
+
+  let originalFee = 0
+  const courierString = order.shipping_courier || ''
+  if (courierString.includes(':')) {
+    const parts = courierString.split(':')
+    originalFee = Number(parts[1]) || 0
+  } else {
+    originalFee = Number(order.shipping_fee) || 0
+  }
+
+  const productTotal = order.order_items.reduce((sum: number, item: any) => sum + (Number(item.price) * item.quantity), 0)
+
+  let newShippingFee = 0
+  let newTotalAmount = productTotal
+
+  if (method === 'Kirim') {
+    newShippingFee = originalFee
+    newTotalAmount = productTotal + originalFee
+  }
+
+  const newCourier = `${method}:${originalFee}`
+
+  const { data, error } = await supabase
+    .from('orders')
+    .update({
+      shipping_fee: newShippingFee,
+      shipping_courier: newCourier,
+      total_amount: newTotalAmount,
+    })
     .eq('id', orderId)
     .select()
 

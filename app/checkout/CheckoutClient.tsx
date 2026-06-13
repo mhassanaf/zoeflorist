@@ -6,14 +6,6 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { createOrder } from '@/app/actions/orders'
 import { useToast } from '@/components/Toast'
-import {
-  getProvinces,
-  getCities,
-  calculateShippingCost,
-  RajaOngkirProvince,
-  RajaOngkirCity,
-  RajaOngkirCost,
-} from '@/app/actions/rajaongkir'
 
 interface CartItem {
   id: string
@@ -44,23 +36,6 @@ export default function CheckoutClient({ isLoggedIn }: CheckoutClientProps) {
   const [errorMsg, setErrorMsg] = useState('')
   const [successMsg, setSuccessMsg] = useState('')
 
-  // RajaOngkir states
-  const [provinces, setProvinces] = useState<RajaOngkirProvince[]>([])
-  const [cities, setCities] = useState<RajaOngkirCity[]>([])
-  const [shippingCosts, setShippingCosts] = useState<RajaOngkirCost[]>([])
-  
-  const [selectedProvince, setSelectedProvince] = useState('')
-  const [selectedProvinceName, setSelectedProvinceName] = useState('')
-  const [selectedCity, setSelectedCity] = useState('')
-  const [selectedCityName, setSelectedCityName] = useState('')
-  const [selectedCourier, setSelectedCourier] = useState('')
-  const [selectedService, setSelectedService] = useState('')
-  const [shippingFee, setShippingFee] = useState(0)
-
-  const [isLoadingProvinces, setIsLoadingProvinces] = useState(false)
-  const [isLoadingCities, setIsLoadingCities] = useState(false)
-  const [isLoadingCosts, setIsLoadingCosts] = useState(false)
-
   // Load cart from localStorage upon component mounting
   useEffect(() => {
     setMounted(true)
@@ -68,82 +43,7 @@ export default function CheckoutClient({ isLoggedIn }: CheckoutClientProps) {
     if (storedCart) {
       setCart(JSON.parse(storedCart))
     }
-
-    const fetchProvinces = async () => {
-      setIsLoadingProvinces(true)
-      try {
-        const data = await getProvinces()
-        setProvinces(data)
-      } catch (err) {
-        console.error('Failed to load provinces:', err)
-      } finally {
-        setIsLoadingProvinces(false)
-      }
-    }
-    fetchProvinces()
   }, [])
-
-  // Load cities when province changes
-  useEffect(() => {
-    if (!selectedProvince) {
-      setCities([])
-      setSelectedProvinceName('')
-      setSelectedCity('')
-      setSelectedCityName('')
-      setShippingCosts([])
-      setSelectedService('')
-      setShippingFee(0)
-      return
-    }
-
-    const fetchCities = async () => {
-      setIsLoadingCities(true)
-      try {
-        const data = await getCities(selectedProvince)
-        setCities(data)
-      } catch (err) {
-        console.error('Failed to load cities:', err)
-      } finally {
-        setIsLoadingCities(false)
-      }
-    }
-    fetchCities()
-
-    const prov = provinces.find((p) => p.province_id === selectedProvince)
-    if (prov) {
-      setSelectedProvinceName(prov.province)
-    }
-  }, [selectedProvince, provinces])
-
-  // Load costs when city or courier changes
-  useEffect(() => {
-    if (!selectedCity || !selectedCourier) {
-      setShippingCosts([])
-      setSelectedService('')
-      setShippingFee(0)
-      return
-    }
-
-    const fetchCosts = async () => {
-      setIsLoadingCosts(true)
-      try {
-        const totalWeight = cart.reduce((sum, item) => sum + 1000 * item.quantity, 0)
-        const data = await calculateShippingCost(selectedCity, selectedCourier, totalWeight)
-        setShippingCosts(data)
-      } catch (err) {
-        console.error('Failed to load shipping costs:', err)
-      } finally {
-        setIsLoadingCosts(false)
-      }
-    }
-    fetchCosts()
-
-    const city = cities.find((c) => c.city_id === selectedCity)
-    if (city) {
-      setSelectedCityName(`${city.type} ${city.city_name}`)
-    }
-  }, [selectedCity, selectedCourier, cities, cart])
-
 
   const updateCartInStateAndStorage = (newCart: CartItem[]) => {
     setCart(newCart)
@@ -190,33 +90,21 @@ export default function CheckoutClient({ isLoggedIn }: CheckoutClientProps) {
       return
     }
 
+    if (!name.trim()) {
+      setErrorMsg('Silakan masukkan nama penerima.')
+      showToast('Silakan masukkan nama penerima.', 'error')
+      return
+    }
+
+    if (!phone.trim()) {
+      setErrorMsg('Silakan masukkan nomor WhatsApp.')
+      showToast('Silakan masukkan nomor WhatsApp.', 'error')
+      return
+    }
+
     if (!address.trim()) {
-      setErrorMsg('Silakan masukkan alamat jalan lengkap Anda.')
-      showToast('Silakan masukkan alamat jalan lengkap Anda.', 'error')
-      return
-    }
-
-    if (!selectedProvince) {
-      setErrorMsg('Silakan pilih provinsi pengiriman.')
-      showToast('Silakan pilih provinsi pengiriman.', 'error')
-      return
-    }
-
-    if (!selectedCity) {
-      setErrorMsg('Silakan pilih kota/kabupaten pengiriman.')
-      showToast('Silakan pilih kota/kabupaten pengiriman.', 'error')
-      return
-    }
-
-    if (!selectedCourier) {
-      setErrorMsg('Silakan pilih kurir pengiriman.')
-      showToast('Silakan pilih kurir pengiriman.', 'error')
-      return
-    }
-
-    if (!selectedService) {
-      setErrorMsg('Silakan pilih opsi layanan pengiriman (ongkir).')
-      showToast('Silakan pilih opsi layanan pengiriman (ongkir).', 'error')
+      setErrorMsg('Silakan masukkan alamat lengkap pengiriman.')
+      showToast('Silakan masukkan alamat lengkap pengiriman.', 'error')
       return
     }
 
@@ -224,12 +112,10 @@ export default function CheckoutClient({ isLoggedIn }: CheckoutClientProps) {
       const toastId = showToast('Memproses pesanan Anda...', 'loading')
       
       const shippingDetails = {
-        shipping_name: name,
-        shipping_phone: phone,
-        shipping_address: `${address.trim()}, ${selectedCityName}, Prov. ${selectedProvinceName}`,
+        shipping_name: name.trim(),
+        shipping_phone: phone.trim(),
+        shipping_address: address.trim(),
         payment_method: paymentMethod,
-        shipping_fee: shippingFee,
-        shipping_courier: `${selectedCourier.toUpperCase()} (${selectedService})`,
       }
 
       const orderItems = cart.map((item) => ({
@@ -310,7 +196,7 @@ export default function CheckoutClient({ isLoggedIn }: CheckoutClientProps) {
       <div className="mb-10">
         <h1 className="font-serif text-3xl font-bold text-brand-primary">Selesaikan Pesanan Anda</h1>
         <p className="text-sm text-brand-primary/60 mt-2 font-sans">
-          Isi detail alamat pengiriman untuk proses pengiriman buket bunga Anda.
+          Isi detail alamat pemesanan untuk proses pengantaran buket bunga Anda.
         </p>
       </div>
 
@@ -343,11 +229,11 @@ export default function CheckoutClient({ isLoggedIn }: CheckoutClientProps) {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
         {/* Form Alamat Kirim (Kiri) */}
         <div className="lg:col-span-7 bg-white p-6 sm:p-8 rounded-2xl border border-brand-neutral-1/10 shadow-sm h-fit">
-          <h2 className="font-serif text-xl font-bold text-brand-primary mb-6">Detail Pengiriman</h2>
+          <h2 className="font-serif text-xl font-bold text-brand-primary mb-6">Detail Pemesanan</h2>
           <form onSubmit={handleCheckoutSubmit} className="space-y-6">
             <div>
               <label htmlFor="shipping_name" className="block text-sm font-medium text-brand-primary">
-                Nama Penerima Bunga
+                Nama Pemesan / Penerima Bunga
               </label>
               <input
                 id="shipping_name"
@@ -377,147 +263,20 @@ export default function CheckoutClient({ isLoggedIn }: CheckoutClientProps) {
               />
             </div>
 
-            {/* Provinsi & Kota/Kabupaten (Grid 2 kolom di md, 1 kolom di mobile) */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label htmlFor="province" className="block text-sm font-medium text-brand-primary">
-                  Provinsi Tujuan
-                </label>
-                <select
-                  id="province"
-                  value={selectedProvince}
-                  onChange={(e) => setSelectedProvince(e.target.value)}
-                  disabled={!isLoggedIn || isPending || isLoadingProvinces}
-                  className="mt-1 block w-full px-4 py-3 bg-brand-surface border border-brand-neutral-1/40 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-accent-soft disabled:opacity-50 cursor-pointer"
-                >
-                  <option value="">-- Pilih Provinsi --</option>
-                  {provinces.map((prov) => (
-                    <option key={prov.province_id} value={prov.province_id}>
-                      {prov.province}
-                    </option>
-                  ))}
-                </select>
-                {isLoadingProvinces && (
-                  <p className="text-[11px] text-brand-primary/50 mt-1 animate-pulse">Memuat provinsi...</p>
-                )}
-              </div>
-
-              <div>
-                <label htmlFor="city" className="block text-sm font-medium text-brand-primary">
-                  Kota / Kabupaten Tujuan
-                </label>
-                <select
-                  id="city"
-                  value={selectedCity}
-                  onChange={(e) => setSelectedCity(e.target.value)}
-                  disabled={!isLoggedIn || isPending || !selectedProvince || isLoadingCities}
-                  className="mt-1 block w-full px-4 py-3 bg-brand-surface border border-brand-neutral-1/40 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-accent-soft disabled:opacity-50 cursor-pointer"
-                >
-                  <option value="">-- Pilih Kota/Kabupaten --</option>
-                  {cities.map((city) => (
-                    <option key={city.city_id} value={city.city_id}>
-                      {city.type} {city.city_name}
-                    </option>
-                  ))}
-                </select>
-                {isLoadingCities && (
-                  <p className="text-[11px] text-brand-primary/50 mt-1 animate-pulse">Memuat kota...</p>
-                )}
-              </div>
-            </div>
-
-            {/* Pilihan Kurir */}
-            <div>
-              <label htmlFor="courier" className="block text-sm font-medium text-brand-primary">
-                Pilih Kurir Ekspedisi
-              </label>
-              <select
-                id="courier"
-                value={selectedCourier}
-                onChange={(e) => setSelectedCourier(e.target.value)}
-                disabled={!isLoggedIn || isPending || !selectedCity}
-                className="mt-1 block w-full px-4 py-3 bg-brand-surface border border-brand-neutral-1/40 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-accent-soft disabled:opacity-50 cursor-pointer"
-              >
-                <option value="">-- Pilih Kurir --</option>
-                <option value="jne">JNE (Jalur Nugraha Ekakurir)</option>
-                <option value="pos">POS Indonesia</option>
-                <option value="tiki">TIKI (Titipan Kilat)</option>
-              </select>
-            </div>
-
-            {/* Opsi Layanan Ongkir */}
-            {selectedCity && selectedCourier && (
-              <div className="p-4 bg-brand-surface border border-brand-neutral-1/20 rounded-xl">
-                <label className="block text-sm font-bold text-brand-primary mb-3">
-                  Pilih Layanan Pengiriman (Tarif & Estimasi)
-                </label>
-                
-                {isLoadingCosts ? (
-                  <div className="py-4 flex items-center justify-center gap-2">
-                    <div className="w-4.5 h-4.5 border-2 border-brand-accent-soft/30 border-t-brand-accent-bold rounded-full animate-spin"></div>
-                    <span className="text-xs text-brand-primary/60 font-sans">Menghitung tarif ongkos kirim...</span>
-                  </div>
-                ) : shippingCosts.length === 0 ? (
-                  <p className="text-xs text-brand-accent-bold font-sans">Layanan pengiriman tidak tersedia untuk kota/kurir ini.</p>
-                ) : (
-                  <div className="space-y-3">
-                    {shippingCosts.map((costItem) => {
-                      const serviceName = costItem.service
-                      const costValue = costItem.cost[0]?.value || 0
-                      const etd = costItem.cost[0]?.etd || '-'
-                      const isSelected = selectedService === serviceName
-
-                      return (
-                        <label
-                          key={serviceName}
-                          className={`flex items-center justify-between p-3.5 rounded-xl border text-sm font-semibold cursor-pointer smooth-transition ${
-                            isSelected
-                              ? 'border-brand-accent-bold bg-brand-accent-soft/10 text-brand-accent-bold'
-                              : 'border-brand-neutral-1/30 text-brand-primary bg-white hover:bg-brand-surface'
-                          }`}
-                        >
-                          <input
-                            type="radio"
-                            name="shipping_service"
-                            value={serviceName}
-                            checked={isSelected}
-                            onChange={() => {
-                              setSelectedService(serviceName)
-                              setShippingFee(costValue)
-                            }}
-                            className="sr-only"
-                          />
-                          <div className="flex flex-col">
-                            <span className="text-sm font-bold">{serviceName}</span>
-                            <span className="text-xs text-brand-primary/60 font-normal">
-                              {costItem.description} ({etd} Hari)
-                            </span>
-                          </div>
-                          <span className="text-sm font-bold text-brand-accent-bold">
-                            Rp {costValue.toLocaleString('id-ID')}
-                          </span>
-                        </label>
-                      )
-                    })}
-                  </div>
-                )}
-              </div>
-            )}
-
             {/* Nama Jalan & Detail Alamat */}
             <div>
               <label htmlFor="shipping_address" className="block text-sm font-medium text-brand-primary">
-                Nama Jalan, RT/RW, & No. Rumah
+                Alamat Lengkap Pengiriman (Tulis detail RT/RW, Kecamatan, Kota, & Provinsi)
               </label>
               <textarea
                 id="shipping_address"
                 required
-                rows={3}
+                rows={4}
                 value={address}
                 onChange={(e) => setAddress(e.target.value)}
                 disabled={!isLoggedIn || isPending}
                 className="mt-1 block w-full px-4 py-3 bg-brand-surface border border-brand-neutral-1/40 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-accent-soft disabled:opacity-50"
-                placeholder="cth: Jl. Kembang Indah Raya No. 12, Gg. Melati, RT 02/RW 04"
+                placeholder="cth: Jl. Kembang Indah Raya No. 12, Gg. Melati, RT 02/RW 04, Kec. Cibiru, Kota Bandung, Jawa Barat"
               />
             </div>
 
@@ -629,20 +388,17 @@ export default function CheckoutClient({ isLoggedIn }: CheckoutClientProps) {
                 <span>Rp {cartTotal.toLocaleString('id-ID')}</span>
               </div>
               <div className="flex justify-between text-sm text-brand-primary/80 font-sans">
-                <span>
-                  Ongkos Kirim {selectedService ? `(${selectedCourier.toUpperCase()} - ${selectedService})` : ''}
-                </span>
-                <span className={shippingFee > 0 ? 'text-brand-primary' : 'text-brand-primary/60'}>
-                  {shippingFee > 0
-                    ? `Rp ${shippingFee.toLocaleString('id-ID')}`
-                    : selectedService
-                    ? 'Gratis'
-                    : 'Pilih layanan di kiri'}
+                <span>Ongkos Kirim</span>
+                <span className="text-brand-primary/60 italic">
+                  Menunggu penentuan admin
                 </span>
               </div>
               <div className="border-t border-brand-neutral-1/10 pt-3 flex justify-between items-baseline font-serif text-lg font-bold text-brand-primary">
                 <span>Total Pembayaran</span>
-                <span className="text-brand-accent-bold">Rp {(cartTotal + shippingFee).toLocaleString('id-ID')}</span>
+                <span className="text-brand-accent-bold">Rp {cartTotal.toLocaleString('id-ID')}</span>
+              </div>
+              <div className="text-[10px] text-brand-primary/45 font-sans leading-relaxed text-right mt-1">
+                *Belum termasuk biaya pengiriman (jika dikirim). Biaya ongkir akan diinput oleh admin setelah meninjau pesanan Anda.
               </div>
             </div>
           </div>
